@@ -4,7 +4,10 @@ import com.example.com.location.tracker.service.ExampleService;
 import com.example.com.location.tracker.service.GPSTracker;
 
 import android.os.Bundle;
+import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.ActivityManager;
+import android.app.ActivityManager.RunningServiceInfo;
 import android.content.Intent;
 import android.view.Menu;
 import android.view.View;
@@ -29,6 +32,16 @@ protected void onCreate(Bundle savedInstanceState) {
     }
 }
 
+private boolean isMyServiceRunning() {
+    ActivityManager manager = (ActivityManager) getSystemService(this.ACTIVITY_SERVICE);
+    for (RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
+        if (ExampleService.class.getName().equals(service.service.getClassName())) {
+            return true;
+        }
+    }
+    return false;
+}
+
 public void onToggleClicked(View view) {
     // Is the toggle on?
     boolean on = ((ToggleButton) view).isChecked();
@@ -44,6 +57,19 @@ public void onToggleClicked(View view) {
     	Intent in = new Intent(this, ExampleService.class);
     	this.stopService(in);
     }
+}
+@SuppressLint("NewApi")
+@Override
+public void onStart() {
+	 ToggleButton tbutton = (ToggleButton) findViewById(R.id.togglebutton);
+	if(isMyServiceRunning()) {
+		tbutton.setChecked(true);
+		tbutton.setText("Stop Location Tracking");
+	} else {
+		tbutton.setChecked(false);
+		tbutton.setText("Start Location Tracking");
+	}
+	super.onStart();
 }
 
 @Override

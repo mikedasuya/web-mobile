@@ -1,0 +1,26 @@
+<servlet>
+  <servlet-name>location</servlet-name> 
+  <servlet-class>com.location.Main</servlet-class>
+<servlet-name>GetData</servlet-name> 
+  <servlet-class>com.location.GetData</servlet-class>
+  <init-param>
+    <param-name>greeting</param-name> 
+    <param-value>Welcome</param-value> 
+  </init-param>
+
+  <init-param>
+    <param-name>person</param-name> 
+    <param-value>WebLogic Developer</param-value> 
+  </init-param>
+   <servlet-mapping>
+    <servlet-name>location</servlet-name>
+    <url-pattern>/location</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>GetData</servlet-name>
+    <url-pattern>/GetData</url-pattern>
+  </servlet-mapping>
+  
+  </servlet>
+
+

@@ -1,0 +1,258 @@
+
+
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no">
+    <meta charset="utf-8">
+    <title>Geocoding service</title>
+    <style>
+      html, body, #map-canvas {
+        height: 100%;
+        margin: 0px;
+        padding: 0px
+      }
+      #panel {
+        position: absolute;
+        top: 5px;
+        left: 50%;
+        margin-left: -180px;
+        z-index: 5;
+        background-color: #fff;
+        padding: 5px;
+        border: 1px solid #999;
+      }
+    </style>
+    <script src="https://maps.googleapis.com/maps/api/js?v=3.exp&sensor=false"></script>
+    <script>
+var geocoder;
+var map;
+var startLat;
+var startLong;
+var endLat;
+var endLong;
+var directionsDisplay;
+var directionsService;
+var newyork = new google.maps.LatLng(40.69847032728747, -73.9514422416687);
+var browserSupportFlag =  new Boolean();
+var initialLocation;
+var siberia = new google.maps.LatLng(60, 105);
+var arrayObject = new Array();
+
+ function httpGetA()
+{
+	var email = document.getElementById('email').value;
+	var day = document.getElementById('day').value;
+	var month = document.getElementById('month').value;
+	var year = document.getElementById('year').value;
+	if((email.length < 1) ||
+	   (month.length < 1) ||
+	   (day.length < 1) ||
+	   (year.length < 1)) {
+		   alert ("Enter valid values in day month year");
+		   return;
+	}
+    var xmlHttp = null;
+    var url = "http://localhost:8080/location/GetData";
+    url = url+"?email="+email;
+    url = url+"&day="+day;
+    url = url+"&month="+month;
+    url = url+"&year="+year;
+    xmlHttp = new XMLHttpRequest();
+    xmlHttp.open( "GET", url, false );
+    xmlHttp.send( null );
+   
+    var jsonObject = JSON.parse(xmlHttp.responseText);
+    if (jsonObject.LatLong.length == 0) {
+    	 alert(" No data on server");
+    } else {
+    	for (var i=0; i<jsonObject.LatLong.length; i++) {
+    	    var obj = new Object();
+    	    obj.lat = parseFloat(jsonObject.LatLong[i].lat);
+    	    obj.longi = parseFloat(jsonObject.LatLong[i].longi);
+    	    console.log(obj.lat);
+    	    console.log(obj.longi);
+    	    arrayObject.push(obj);
+    	}
+    	drawWayPoints();
+    }
+} 
+
+ //function parseJson(jsonobject) {
+	 
+ //}
+
+function initialize() {
+  geocoder = new google.maps.Geocoder();
+  directionsDisplay = new google.maps.DirectionsRenderer();
+  directionsService = new google.maps.DirectionsService();
+  var latlng = new google.maps.LatLng(-25.363882,131.044922);
+  var mapOptions = {
+    zoom: 8,
+    center: latlng
+  }
+  map = new google.maps.Map(document.getElementById('map-canvas'), mapOptions);
+  directionsDisplay.setMap(map);
+}
+
+function setCurrentLocation() {
+  browserSupportFlag = true;
+if (navigator.geolocation) {
+    var location_timeout = setTimeout("geolocFail()", 10000);
+
+    navigator.geolocation.getCurrentPosition(function(position) {
+      clearTimeout(location_timeout);
+      console.log(position.coords.latitude);
+      console.log(position.coords.longitude);
+      initialLocation = new google.maps.LatLng(position.coords.latitude,position.coords.longitude);
+      var marker = new google.maps.Marker({ 
+                        position: initialLocation,
+                        title:"My location",
+                        map:map}
+        );
+        map.setCenter(initialLocation); 
+        //geocodeLatLng(lat, lng);
+    }, function(error) {
+        clearTimeout(location_timeout);
+        handleNoGeolocation(browserSupportFlag);
+       //geolocFail();
+    });
+} else {
+    // Fallback for no geolocation
+    browserSupportFlag = false;
+    handleNoGeolocation(browserSupportFlag);
+}  
+
+}
+
+function handleNoGeolocation(errorFlag) {
+    
+    if (errorFlag == true) {
+      alert("Geolocation service failed.");
+      initialLocation = newyork;
+    } else {
+      alert("Your browser doesn't support geolocation. We've placed you in Siberia.");
+      initialLocation = siberia;
+    }
+    map.setCenter(initialLocation);
+}
+
+ function drawWayPoints() {
+	 var waypts = [];
+	 console.log("console"+ arrayObject.size);
+	 if (arrayObject.length > 1) {
+		  var objstart=arrayObject[0];
+		 var objend=arrayObject[arrayObject.length -1];
+		 var startA = new google.maps.LatLng(objstart.lat, objstart.longi);
+		 var endA = new google.maps.LatLng(objend.lat, objend.longi);
+		 for (var i = 1; i < arrayObject.length-1; i++) {
+			 var obj=arrayObject[i];
+			 var point = new google.maps.LatLng(objstart.lat, objstart.longi);
+			 waypts.push({
+		          location: point,
+		          stopover:true
+		      });
+		 }
+
+		 var request = {
+			      origin:startA,
+			      destination:endA,
+			      waypoints: waypts,
+			      travelMode: google.maps.TravelMode.DRIVING
+			  };
+		directionsService.route(request, function(response, status) {
+		if (status == google.maps.DirectionsStatus.OK) {
+			      directionsDisplay.setDirections(response);
+		}
+		
+	  }); 
+		 
+	 }  else {
+		 
+		   if (arrayObject.length == 1) {
+	 
+			 var obj = arrayObject[0];
+			 var initialLocation = new google.maps.LatLng(obj.lat,obj.longi);
+			 var marker = new google.maps.Marker({ 
+                 position: initialLocation,
+                 title:"My location",
+                 map:map});
+ 				map.setCenter(initialLocation);
+		 } 
+ 				//geocodeLatLng(lat, lng);
+	 
+	}
+}
+ 
+
+
+function codeAddress() {
+  var startaddress = document.getElementById('startaddress').value;
+  var endaddress = document.getElementById('endaddress').value;
+
+  geocoder.geocode( { 'address': startaddress}, function(results, status) {
+    if (status == google.maps.GeocoderStatus.OK) {
+      startLat = results[0].geometry.location.lat();
+      startLong = results[0].geometry.location.lng();
+      //map.setCenter(results[0].geometry.location);
+     /* var marker = new google.maps.Marker({
+          map: map,
+          position: results[0].geometry.location
+      });*/
+    } else {
+      alert('Geocode was not successful for the following reason: ' + status);
+    }
+  });
+
+  geocoder.geocode( { 'address': endaddress}, function(results, status) {
+    if (status == google.maps.GeocoderStatus.OK) {
+      endLat = results[0].geometry.location.lat();
+      endLong = results[0].geometry.location.lng();
+     //map.setCenter(results[0].geometry.location);
+     /* var marker = new google.maps.Marker({
+          map: map,
+          position: results[0].geometry.location
+      });*/
+    } else {
+      alert('Geocode was not successful for the following reason: ' + status);
+    }
+  });
+
+  var startA = new google.maps.LatLng(startLat, startLong);
+  var endA = new google.maps.LatLng(endLat, endLong);
+  console.log(startA.lat());
+  console.log(endA.lat());
+  var request = {
+      origin:startA,
+      destination:endA,
+      travelMode: google.maps.TravelMode.DRIVING
+  };
+  directionsService.route(request, function(response, status) {
+    if (status == google.maps.DirectionsStatus.OK) {
+      directionsDisplay.setDirections(response);
+    }
+  });
+
+}
+
+google.maps.event.addDomListener(window, 'load', initialize);
+
+    </script>
+   
+  </head>
+  <body>
+    <div id="panel">
+      <input id="startaddress" type="textbox" value="chicago, il">
+      <input id="endaddress" type="textbox" value="st louis, mo">
+      <input type="button" value="Geocode" onclick="codeAddress()">
+      <input type="button" value="GetLatLongA" onclick="httpGetA()">
+      <input id="email" type="textbox" value="email">
+      <input id="day" type="textbox" value="day">
+      <input id="month" type="textbox" value="month">
+      <input id="year" type="textbox" value="year">
+         
+    </div>
+    <div id="map-canvas"></div>
+  </body>
+</html>
+

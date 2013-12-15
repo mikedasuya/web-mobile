@@ -55,6 +55,7 @@ public class GetData extends HttpServlet {
 			        String day = request.getParameter("day");
 			        String month = request.getParameter("month");
 			        String year = request.getParameter("year");
+			        System.out.println(emailid+ day+ month+ year);
 			        DbConnection db = new DbConnection();
 			        List<LangLat> list = db.getData(emailid, day, month, year);
 			        int i = 0;

@@ -18,19 +18,14 @@ public class ExampleService extends Service {
     Handler mhandler = new Handler() {
     	public void handleMessage(Message msg) {
     		if (msg.arg1 == Common.MAXIMUM_COUNT) {
-    			sendNotification();
-    			stopSelf();
+    			//sendNotification();
+    			//stopSelf();
     		}
     	}
 	};
     private void sendNotification() {
 		// TODO Auto-generated method stub
-    	NotificationManager notificationManager = (NotificationManager) 
-    			  getSystemService(NOTIFICATION_SERVICE);
-    	Notification n  = new Notification.Builder(this)
-        .setContentTitle(Common.text)
-        .setSmallIcon(R.drawable.ic_launcher).build();
-        
+    	       
 	}
     GeoLocation loc = new GeoLocation(mhandler, this);
     @Override
@@ -41,6 +36,8 @@ public class ExampleService extends Service {
     public int onStartCommand(Intent intent, int flags, int startId) {
         // The service is starting, due to a call to startService()
     	System.out.println("tracker on Start Command");
+    	String email = intent.getStringExtra("email");
+    	loc.setEmail(email);
     	mStartMode = 1;
     	startPostingData();
         return mStartMode;
@@ -50,7 +47,7 @@ public class ExampleService extends Service {
     private void startPostingData() {
 		// TODO Auto-generated method stub
     	loc.setStop(1);
-    	mhandler.postDelayed (loc, Common.time);
+    	mhandler.postDelayed (loc, 0);
 	}
 	@Override
     public boolean onUnbind(Intent intent) {
@@ -66,6 +63,7 @@ public class ExampleService extends Service {
     public void onDestroy() {
         // The service is no longer used and is being destroyed
     	System.out.println("destroy");
+    	mhandler.removeCallbacks(loc);
     	loc.setStop(-1);
     	mStartMode = -1;
     }

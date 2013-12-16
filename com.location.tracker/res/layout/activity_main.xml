@@ -23,5 +23,13 @@
     android:textOff="Start  Location Tracking"
     android:onClick="onToggleClicked"/>
     
+      
+    <EditText
+        android:id="@+id/edittext"
+        android:layout_below="@id/togglebutton"
+        android:paddingTop = "25dip"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/email" />
 
 </RelativeLayout>

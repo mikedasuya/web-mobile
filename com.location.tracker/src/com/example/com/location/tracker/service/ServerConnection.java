@@ -34,7 +34,7 @@ public class ServerConnection {
     try {
     	HttpPost request = new HttpPost(Common.url);
 		List<NameValuePair> postParameters = new ArrayList<NameValuePair>();
-		postParameters.add(new BasicNameValuePair("email", "email@gmail.com"));
+		postParameters.add(new BasicNameValuePair("email", email));
 	    postParameters.add(new BasicNameValuePair("lat", lat));
 	    postParameters.add(new BasicNameValuePair("long", longi));
 	    Date date = new Date();

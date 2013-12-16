@@ -25,7 +25,7 @@ class ThreadConnection implements Runnable{
 	@Override
 	public void run() {
 		// TODO Auto-generated method stub
-		con.sendEmailLatLong("email@gmail.com",lat,longi);
+		con.sendEmailLatLong(email,lat,longi);
 		
 	}
 	
@@ -36,6 +36,7 @@ public class GeoLocation implements Runnable {
 	int stop;
 	Context context;
 	int counter = 0;
+	String email = null;
 	ServerConnection con;
 	GeoLocation(Handler handler, Context cont) {
 		handle = handler;
@@ -52,7 +53,7 @@ public class GeoLocation implements Runnable {
 		if(mGPS.canGetLocation ){
 	    	mGPS.getLocation();
 	    	System.out.println("tracker Lat"+mGPS.getLatitude()+"Lon  "+mGPS.getLongitude());
-	    	ThreadConnection task = new ThreadConnection("email@gmail.com",Double.toString(mGPS.getLatitude()),
+	    	ThreadConnection task = new ThreadConnection(email, Double.toString(mGPS.getLatitude()),
 	    			Double.toString(mGPS.getLongitude()),con);
 	    	Thread t1 = new Thread(task);
 	    	t1.start();
@@ -81,5 +82,8 @@ public class GeoLocation implements Runnable {
 	void setStop(int val) {
 		stop = val;
 		
+	}
+	void setEmail(String email) {
+		this.email = email;
 	}
 }

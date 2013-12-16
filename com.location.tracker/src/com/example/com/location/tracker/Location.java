@@ -13,6 +13,7 @@ import android.view.Menu;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.ToggleButton;
+import android.widget.EditText;
 
 public class Location extends Activity {
 
@@ -23,6 +24,7 @@ protected void onCreate(Bundle savedInstanceState) {
     GPSTracker mGPS = new GPSTracker(this);
 
     TextView text = (TextView) findViewById(R.id.texts);
+    
     if(mGPS.canGetLocation ){
     	mGPS.getLocation();
    //text.setText("Lat"+mGPS.getLatitude()+"Lon"+mGPS.getLongitude());
@@ -44,18 +46,28 @@ private boolean isMyServiceRunning() {
 
 public void onToggleClicked(View view) {
     // Is the toggle on?
-    boolean on = ((ToggleButton) view).isChecked();
+	
     System.out.println(" tracker ---toggled");
+    boolean on = ((ToggleButton) view).isChecked();
+    EditText text = (EditText)findViewById(R.id.edittext);
+    ToggleButton tbutton = (ToggleButton) findViewById(R.id.togglebutton);
+    String val = text.getText().toString();
+    if (val.length() == 0) {
+    	tbutton.setChecked(false);
+    } else {
     if (on) {
         // Enable vibrate
     	
     	Intent in = new Intent(this, ExampleService.class);
+    	in.putExtra("email", val);
     	this.startService(in);
     	
     } else {
         // Disable vibrate
     	Intent in = new Intent(this, ExampleService.class);
+    	in.putExtra("email", val);
     	this.stopService(in);
+    }
     }
 }
 @SuppressLint("NewApi")

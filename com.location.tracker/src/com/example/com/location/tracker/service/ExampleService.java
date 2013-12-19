@@ -36,11 +36,15 @@ public class ExampleService extends Service {
     public int onStartCommand(Intent intent, int flags, int startId) {
         // The service is starting, due to a call to startService()
     	System.out.println("tracker on Start Command");
-    	String email = intent.getStringExtra("email");
-    	loc.setEmail(email);
-    	mStartMode = 1;
-    	startPostingData();
-        return mStartMode;
+    	if (intent == null) {
+    		System.out.println("tracker intent is null");
+    	} else {
+    		String email = intent.getStringExtra("email");
+    	   	loc.setEmail(email);
+    	   	mStartMode = 1;
+    	   	startPostingData();
+    	}
+        return START_REDELIVER_INTENT;
         
     }
     

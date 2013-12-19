@@ -65,11 +65,11 @@ public class ServerConnection {
 	 			e.printStackTrace();
 	 		}
         
-        int code = response.getStatusLine().getStatusCode();
+       /* int code = response.getStatusLine().getStatusCode();
         System.out.println("tracker" + code);
         if (code != 200) {
         	System.out.println("tracker" + code);
-        }
+        }*/
         // Get hold of the response entity
         HttpEntity entity = response.getEntity();
         // If the response does not enclose an entity, there is no need

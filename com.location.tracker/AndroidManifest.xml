@@ -32,7 +32,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <service android:name="com.example.com.location.tracker.service.ExampleService"> </service>
+        <service android:name="com.example.com.location.tracker.service.ExampleService" android:process=":remote"> </service>
         </application>
 
 </manifest>

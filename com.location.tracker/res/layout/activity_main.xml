@@ -12,11 +12,43 @@
         android:id="@+id/texts"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/hello_world" />
+        android:text="@string/hello_world" 
+        android:paddingTop="20dip"/>
     
+    <LinearLayout 
+        android:id="@+id/layout"
+         android:paddingTop="60dip"
+         android:layout_below="@id/texts"
+        android:layout_width="match_parent"
+        android:layout_height="50dip"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:orientation="horizontal" 
+        android:layout_centerInParent="true">
+
+        <!-- <ImageView
+            android:id="@+id/imageView1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/green" />
+
+        <ImageView
+            android:id="@+id/imageView2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/green" />
+
+        <ImageView
+            android:id="@+id/imageView3"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/green" /> -->
+           
+        
+    </LinearLayout>
    <ToggleButton 
     android:id="@+id/togglebutton"
-    android:layout_below="@id/texts"
+    android:layout_below="@id/layout"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:textOn="Stop Location Tracking"

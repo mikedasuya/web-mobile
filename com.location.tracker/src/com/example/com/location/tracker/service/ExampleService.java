@@ -3,10 +3,12 @@ package com.example.com.location.tracker.service;
 import com.example.com.location.common.Common;
 import com.example.com.location.tracker.R;
 
+import android.app.Activity;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.Service;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
@@ -15,6 +17,7 @@ public class ExampleService extends Service {
     int mStartMode;       // indicates how to behave if the service is killed
     IBinder mBinder;      // interface for clients that bind
     boolean mAllowRebind; // indicates whether onRebind should be used
+    private String PREFS_NAME = "prefs";
     Handler mhandler = new Handler() {
     	public void handleMessage(Message msg) {
     		if (msg.arg1 == Common.MAXIMUM_COUNT) {
@@ -36,16 +39,35 @@ public class ExampleService extends Service {
     public int onStartCommand(Intent intent, int flags, int startId) {
         // The service is starting, due to a call to startService()
     	System.out.println("tracker on Start Command");
+    	//TODO:Check the flag because thi aint working
+    	String email = null;
     	if (intent == null) {
     		System.out.println("tracker intent is null");
+    		email = getEmailFromPersistent();
     	} else {
-    		String email = intent.getStringExtra("email");
-    	   	loc.setEmail(email);
-    	   	mStartMode = 1;
-    	   	startPostingData();
+    		email = intent.getStringExtra("email");
+    	   	setEmailPersistent(email);
     	}
-        return START_REDELIVER_INTENT;
+    	loc.setEmail(email);
+	   	mStartMode = 1;
+	   	startPostingData();
+        return START_STICKY;
         
+    }
+    
+    private boolean setEmailPersistent(String email) {
+    	SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
+    	SharedPreferences.Editor editor = settings.edit();
+    	editor.putString("email",email);
+    	editor.commit();
+    	return true;
+    }
+    
+    private String getEmailFromPersistent() {
+    	SharedPreferences settings = getSharedPreferences(PREFS_NAME,
+                Activity.MODE_PRIVATE);
+         String uname = settings.getString("email", null);
+         return uname;
     }
     
     private void startPostingData() {

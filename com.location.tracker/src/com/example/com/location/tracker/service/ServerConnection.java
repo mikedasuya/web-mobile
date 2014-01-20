@@ -18,68 +18,49 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
 
+import android.os.Handler;
+import android.os.Message;
+
 import com.example.com.location.common.Common;
 
 public class ServerConnection {
 	
-	public void sendEmailLatLong(String email,String lat,String longi) {
+	public ServerConnection() {
+		
+		// TODO Auto-generated constructor stub
+	}
+
+	public boolean sendEmailLatLong(String email,String lat,String longi) throws Exception{
 		System.out.println("tracker ---- " + lat);
 		HttpClient httpclient = new DefaultHttpClient();
-
-    // Prepare a request object
-    
-
-    // Execute the request
-    HttpResponse response = null;
-    try {
-    	HttpPost request = new HttpPost(Common.url);
-		List<NameValuePair> postParameters = new ArrayList<NameValuePair>();
-		postParameters.add(new BasicNameValuePair("email", email));
-	    postParameters.add(new BasicNameValuePair("lat", lat));
-	    postParameters.add(new BasicNameValuePair("long", longi));
-	    Date date = new Date();
-	    Calendar c = new GregorianCalendar();
-	    int mYear=c.get(Calendar.YEAR);
-	    int mMonth=c.get(Calendar.MONTH);
-	    int mDay=c.get(Calendar.DAY_OF_MONTH);
-	    postParameters.add(new BasicNameValuePair("day",Integer.toString(mDay)));
-	    postParameters.add(new BasicNameValuePair("month",Integer.toString(mMonth)));
-	    postParameters.add(new BasicNameValuePair("year",Integer.toString(mYear)));
-	 // Set your parameters here...
-	 		UrlEncodedFormEntity formEntity = null;
-	 		try {
-	 			formEntity = new UrlEncodedFormEntity(postParameters);
-	 		} catch (UnsupportedEncodingException e) {
-	 			// TODO Auto-generated catch block
-	 			e.printStackTrace();
-	 		}
-	 		request.setEntity(formEntity);
-	 		
-	 		try {
-	 			response = httpclient.execute(request);
-	 		} catch (ClientProtocolException e) {
-	 			// TODO Auto-generated catch block
-	 			e.printStackTrace();
-	 		} catch (IOException e) {
-	 			// TODO Auto-generated catch block
-	 			e.printStackTrace();
-	 		}
-        
-       /* int code = response.getStatusLine().getStatusCode();
-        System.out.println("tracker" + code);
-        if (code != 200) {
-        	System.out.println("tracker" + code);
-        }*/
-        // Get hold of the response entity
-        HttpEntity entity = response.getEntity();
-        // If the response does not enclose an entity, there is no need
-        // to worry about connection release
-
-        
-
-    } catch (Exception e) {
-    	e.printStackTrace();
-    	
-    }
-}
-}
+		// Execute the request
+		HttpResponse response = null;
+		try {
+			HttpPost request = new HttpPost(Common.url);
+			List<NameValuePair> postParameters = new ArrayList<NameValuePair>();
+			postParameters.add(new BasicNameValuePair("email", email));
+		    postParameters.add(new BasicNameValuePair("lat", lat));
+		    postParameters.add(new BasicNameValuePair("long", longi));
+		    Date date = new Date();
+		    Calendar c = new GregorianCalendar();
+		    int mYear=c.get(Calendar.YEAR);
+		    int mMonth=c.get(Calendar.MONTH);
+		    int mDay=c.get(Calendar.DAY_OF_MONTH);
+		    postParameters.add(new BasicNameValuePair("day",Integer.toString(mDay)));
+		    postParameters.add(new BasicNameValuePair("month",Integer.toString(mMonth)));
+		    postParameters.add(new BasicNameValuePair("year",Integer.toString(mYear)));
+		 // Set your parameters here...
+		 	UrlEncodedFormEntity formEntity = null;
+		 	formEntity = new UrlEncodedFormEntity(postParameters);
+		 	request.setEntity(formEntity);
+		 	response = httpclient.execute(request);
+		 	// Get hold of the response entity
+	       // HttpEntity entity = response.getEntity();
+	        
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw e;
+		}
+		return true;
+	}
+};

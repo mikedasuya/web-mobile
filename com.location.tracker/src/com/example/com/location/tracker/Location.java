@@ -1,15 +1,23 @@
 package com.example.com.location.tracker;
 
+import com.example.com.location.common.Common;
 import com.example.com.location.tracker.service.ExampleService;
 import com.example.com.location.tracker.service.GPSTracker;
+import com.example.com.location.tracker.service.ICallBack;
+import com.example.com.location.tracker.service.IServerConnection;
 
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.IBinder;
+import android.os.RemoteException;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.ActivityManager.RunningServiceInfo;
+import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.graphics.drawable.BitmapDrawable;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -19,27 +27,35 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.LinearLayout.LayoutParams;
 import android.widget.TextView;
+import android.widget.Toast;
 import android.widget.ToggleButton;
 import android.widget.EditText;
 
 public class Location extends Activity {
 	 final Handler handler=new Handler();
 	 Animation an;
+	 IServerConnection serverCon = null;
+	 CallBack cb;
+	 
 @Override
 protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_main);
     GPSTracker mGPS = new GPSTracker(this);
-
-    TextView text = (TextView) findViewById(R.id.texts);
+    Intent in = new Intent(this, ExampleService.class);
+	bindService(in, connectionService, Context.BIND_AUTO_CREATE);
+   
+    //TextView text = (TextView) findViewById(R.id.texts);
     
     if(mGPS.canGetLocation ){
     	mGPS.getLocation();
    //text.setText("Lat"+mGPS.getLatitude()+"Lon"+mGPS.getLongitude());
     }else{
-        text.setText("Unabletofind");
+      //  text.setText("Unabletofind");
         System.out.println("Unable");
     }
+    
+    final String val = "white";
     final LinearLayout root = (LinearLayout) findViewById(R.id.layout);
     root.post(new Runnable() { 
     public void run() { 
@@ -56,7 +72,11 @@ protected void onCreate(Bundle savedInstanceState) {
         for (int i = 0; i < n;i++) {
         	final ImageView imageView = new ImageView(Location.this);
             //setting image resource
-            imageView.setImageResource(R.drawable.green);
+        	if (val.compareTo("white") == 0) {
+        			imageView.setImageResource(R.drawable.white);
+            } else if (val.compareTo("green") == 0) {
+        		imageView.setImageResource(R.drawable.green);
+            }
             LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(30, 30, 1);
             imageView.setLayoutParams(params);
             Log.i("MY", "adding" + i); 
@@ -68,26 +88,58 @@ protected void onCreate(Bundle savedInstanceState) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-        StartAnimation();
+        
+       
          
     } 
    }); 
-   Log.i("MY", "FINISHED OnCreate");
+   cb = new CallBack();
+    
+      Log.i("MY", "FINISHED OnCreate");
    
 }
+
 @Override
-public void onStart() {
-	super.onStart();
-	
+protected void onSaveInstanceState(final Bundle outState) {
+	outState.putBoolean("isAnimation", true);
+			
 }
-private boolean isMyServiceRunning() {
-    ActivityManager manager = (ActivityManager) getSystemService(this.ACTIVITY_SERVICE);
-    for (RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
-        if (ExampleService.class.getName().equals(service.service.getClassName())) {
-            return true;
-        }
+
+
+
+private void setAnimationIcons(final String val) {
+	final LinearLayout root = (LinearLayout) findViewById(R.id.layout);
+    root.post(new Runnable() { 
+    public void run() { 
+    	int count  = root.getChildCount();
+    	for (int i = 0; i < count; i++) {
+    		ImageView v = (ImageView)root.getChildAt(i);
+    		if (val.compareTo("white") == 0) {
+    			v.setImageResource(R.drawable.white);
+    		} else if (val.compareTo("green") == 0) {
+    			v.setImageResource(R.drawable.green);
+    		}
+    		LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(30, 30, 1);
+    		v.setLayoutParams(params);
+    		root.removeViewAt(i);
+    		root.addView(v, i);
+    	}
+	
     }
-    return false;
+    });
+ }
+private boolean isMyServiceRunning() {
+	Log.v("tracker", "is My service Running");
+	try {
+		if (serverCon != null) 
+				if (serverCon.isTracking()) {
+					return true;
+		}
+	} catch (RemoteException e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+	}
+	return false;
 }
 class Animation implements Runnable {
 	
@@ -135,14 +187,28 @@ class Animation implements Runnable {
 public void onDestroy() {
 	super.onDestroy();
 	handler.removeCallbacks(an);
+	try {
+		serverCon.unregister(cb);
+	} catch (RemoteException e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+	}
+	unbindService(connectionService);
 
 }
 
 public void StartAnimation() {
-	Animation an = new Animation();	
+	if (an == null) {
+		an = new Animation();
+	}
 	handler.post(an);
 }
 
+public void stopAnimation() {
+	handler.removeCallbacks(an);
+	an = null;
+	setAnimationIcons("white");
+}
 public void onToggleClicked(View view) {
     // Is the toggle on?
 	
@@ -156,37 +222,95 @@ public void onToggleClicked(View view) {
     } else {
     if (on) {
         // Enable vibrate
-    	
-    	Intent in = new Intent(this, ExampleService.class);
-    	in.putExtra("email", val);
-    	this.startService(in);
+    //	StartAnimation();
+    	if (serverCon != null) {
+    		try {
+				serverCon.startTracking(val);
+			} catch (RemoteException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+    	}
     	
     } else {
         // Disable vibrate
-    	Intent in = new Intent(this, ExampleService.class);
-    	in.putExtra("email", val);
-    	this.stopService(in);
-    }
+    		//stopAnimation();
+    		try {
+    			if (serverCon != null) {
+    				serverCon.stopTracking(val);
+    			}
+			} catch (RemoteException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+    	}
     }
 }
 @SuppressLint("NewApi")
 @Override
 public void onStart() {
-	 ToggleButton tbutton = (ToggleButton) findViewById(R.id.togglebutton);
+	ToggleButton tbutton = (ToggleButton) findViewById(R.id.togglebutton);
 	if(isMyServiceRunning()) {
 		tbutton.setChecked(true);
+		StartAnimation();
 		tbutton.setText("Stop Location Tracking");
 	} else {
 		tbutton.setChecked(false);
+		stopAnimation();
 		tbutton.setText("Start Location Tracking");
 	}
 	super.onStart();
 }
 
-@Override
-public boolean onCreateOptionsMenu(Menu menu) {
-    // Inflate the menu; this adds items to the action bar if it is present.
-    getMenuInflater().inflate(R.menu.main, menu);
-    return true;
-}
+class CallBack extends ICallBack.Stub {
+
+	@Override
+	public void result(String value, int returnCode) throws RemoteException {
+		// TODO Auto-generated method stub
+		if (returnCode == Common.ERROR_SERVER_PROBLEM) {
+			//showDialog();
+			finish();
+			stopAnimation();
+		} else if (returnCode == Common.GEO_NOT_FOUND) {
+			runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                	Toast.makeText(getApplication(), "Geo Not found try again", Toast.LENGTH_LONG).show();
+                    
+                }
+            });
+			
+		} else if (returnCode == Common.START_TRACKING) {
+			StartAnimation();
+		} else if (returnCode == Common.STOP_TRACKING) {
+			stopAnimation();
+		}
+	}
+
+	
+};
+
+ServiceConnection connectionService = new ServiceConnection() {
+
+	@Override
+	public void onServiceConnected(ComponentName name, IBinder service) {
+		// TODO Auto-generated method stub
+		serverCon = IServerConnection.Stub.asInterface(service);
+		try {
+			Log.v("tracker", "Service Connected");
+			serverCon.registerCallBack(cb);
+		} catch (RemoteException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+	@Override
+	public void onServiceDisconnected(ComponentName name) {
+		// TODO Auto-generated method stub
+		
+	}
+	
+};
+
 }

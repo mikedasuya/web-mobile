@@ -1,5 +1,12 @@
 package com.example.com.location.tracker.service;
 
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Set;
+
+
 import com.example.com.location.common.Common;
 import com.example.com.location.tracker.R;
 
@@ -7,51 +14,215 @@ import android.app.Activity;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
+import android.os.RemoteException;
+import android.support.v4.app.NotificationCompat;
+import android.util.Log;
 
 public class ExampleService extends Service {
     int mStartMode;       // indicates how to behave if the service is killed
     IBinder mBinder;      // interface for clients that bind
     boolean mAllowRebind; // indicates whether onRebind should be used
     private String PREFS_NAME = "prefs";
+    IBinder bind = new ConnectionBinder();
+    
+    Set<ICallBack> cbList = new HashSet<ICallBack>();
     Handler mhandler = new Handler() {
     	public void handleMessage(Message msg) {
     		if (msg.arg1 == Common.MAXIMUM_COUNT) {
     			//sendNotification();
     			//stopSelf();
+    		} if (msg.arg1 == Common.ERROR_SERVER_PROBLEM) {
+    			Iterator<ICallBack> iterator = cbList.iterator();
+    		    while(iterator.hasNext()) {
+    		        ICallBack element = iterator.next();
+    		        try {
+						element.result("Server Error", Common.ERROR_SERVER_PROBLEM);
+					} catch (RemoteException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+    		        
+    		    }
+    			destroy();
+    			stopSelf();
+    			sendNotification("Server Not responding Try again");
+    		} else if (msg.arg1 == Common.GEO_NOT_FOUND) {
+    			Iterator<ICallBack> iterator = cbList.iterator();
+    		    while(iterator.hasNext()) {
+    		        ICallBack element = iterator.next();
+    		        try {
+						element.result("Server Error", Common.ERROR_SERVER_PROBLEM);
+					} catch (RemoteException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+    		        
+    		    }
+    			//destroy();
+    			//stopSelf();
+    			sendNotification("Geo Location service not found");
     		}
     	}
 	};
-    private void sendNotification() {
+	StateMachine st =  StateMachine.getInstance(mhandler, this);
+	WorkerThread work;
+	 Handler mhandlerUICommands = new Handler() {
+	    	public void handleMessage(Message msg) {
+	    		if (msg.arg1 == Common.START_TRACKING) {
+	    			//sendNotification();
+	    			//stopSelf();
+	    			String email = (String) msg.obj;
+	    			if (work == null) {
+	    				work = 
+	    						new WorkerThread(email, ExampleService.this, mhandler);
+	    				work.start();
+	    				sendUI(Common.START_TRACKING);
+	    			}
+	    		} else if (msg.arg1 == Common.STOP_TRACKING) {
+	    			if (work != null) {
+	    				sendUI(Common.STOP_TRACKING);
+	    				work.stopRunning();
+	    				work = null;
+	    			}
+	    			
+	    		}
+	    	}
+
+			private void sendUI(int startTracking) {
+				// TODO Auto-generated method stub
+				Iterator<ICallBack> iterator = cbList.iterator();
+    		    while(iterator.hasNext()) {
+    		        ICallBack element = iterator.next();
+    		        try {
+						element.result("some", startTracking);
+					} catch (RemoteException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+    		        
+    		    }
+			}
+		};
+	
+	class ConnectionBinder extends IServerConnection.Stub {
+
+		@Override
+		public boolean registerCallBack(ICallBack cb) throws RemoteException {
+			// TODO Auto-generated method stub
+			boolean result = false;
+			if (cb == null) {
+				result = false;
+			} else {
+				cbList.add(cb);
+				result = true;
+			}
+			
+			return result;
+		}
+
+		@Override
+		public boolean unregister(ICallBack cb) throws RemoteException {
+			// TODO Auto-generated method stub
+			boolean result = false;
+			if (cb != null) {
+				result = true;
+				cbList.remove(cb);
+			}
+			return result;
+		}
+		@Override
+		public boolean startTracking(String email) {
+			String emails = getEmailFromPersistent();
+			if (emails == null) {
+				setEmailPersistent(email);
+			} else 	if (emails != null && emails.compareTo(email) != 0) {
+				return false;
+			}
+			Message msg = new Message();
+			msg.arg1 = Common.START_TRACKING;
+			msg.obj = email;
+			mhandlerUICommands.sendMessage(msg);
+			return true;
+			
+		}
+		@Override
+		public boolean stopTracking(String email) {
+			String emails = getEmailFromPersistent();
+			if (emails == null) {
+				setEmailPersistent(email);
+			} else 	if (emails != null && emails.compareTo(email) != 0) {
+				return false;
+			}
+			Message msg = new Message();
+			msg.arg1 = Common.STOP_TRACKING;
+			msg.obj = email;
+			mhandlerUICommands.sendMessage(msg);
+			return true;
+			
+		}
+
+		@Override
+		public boolean isTracking() throws RemoteException {
+			// TODO Auto-generated method stub
+			Log.v("tracker ", "is Tracking");
+			if (st != null ) {
+				if (st.getCurrentState() == Common.STATE.STATE_TRACKING.getVal()) {
+					return true;
+				}
+			} else {
+				Log.v("tracker ", "service state machine is null");
+			}
+			return false;
+		}
+	
+	};
+	
+	
+    private void sendNotification(String msg) {
 		// TODO Auto-generated method stub
+    	NotificationCompat.Builder mBuilder =
+    	        new NotificationCompat.Builder(this)
+    	        .setSmallIcon(R.drawable.images)
+    	        .setContentTitle("Location Server Notification")
+    	        .setContentText(msg);
+    	// Creates an explicit intent for an Activity in your app
+    	
+    	NotificationManager mNotificationManager =
+    	    (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+    	// mId allows you to update the notification later on.
+    	mNotificationManager.notify(0, mBuilder.build());
     	       
 	}
-    GeoLocation loc = new GeoLocation(mhandler, this);
+    
     @Override
     public void onCreate() {
         // The service is being created
+    	st.setState(Common.STATE.STATE_INITIAL.getVal());
     }
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         // The service is starting, due to a call to startService()
-    	System.out.println("tracker on Start Command");
-    	//TODO:Check the flag because thi aint working
-    	String email = null;
+    	int state = st.getCurrentState();
     	if (intent == null) {
-    		System.out.println("tracker intent is null");
-    		email = getEmailFromPersistent();
-    	} else {
-    		email = intent.getStringExtra("email");
-    	   	setEmailPersistent(email);
+    		if (state == Common.STATE.STATE_TRACKING.getVal()) {
+    			System.out.println("intent null state tracking");
+    			String email = getEmailFromPersistent();
+    			if (email == null) {
+    				System.out.println(" intent null email cannt be null");
+    				Message msg = new Message();
+    				msg.arg1 = Common.START_TRACKING;
+    				msg.obj = email;
+    				mhandlerUICommands.sendMessage(msg);
+    			}
+    		}
     	}
-    	loc.setEmail(email);
-	   	mStartMode = 1;
-	   	startPostingData();
-        return START_STICKY;
+    	return START_STICKY;
         
     }
     
@@ -70,11 +241,7 @@ public class ExampleService extends Service {
          return uname;
     }
     
-    private void startPostingData() {
-		// TODO Auto-generated method stub
-    	loc.setStop(1);
-    	mhandler.postDelayed (loc, 0);
-	}
+   
 	@Override
     public boolean onUnbind(Intent intent) {
         // All clients have unbound with unbindService()
@@ -85,17 +252,19 @@ public class ExampleService extends Service {
         // A client is binding to the service with bindService(),
         // after onUnbind() has already been called
     }
+    private void destroy() {
+    	
+    }
     @Override
     public void onDestroy() {
         // The service is no longer used and is being destroyed
     	System.out.println("destroy");
-    	mhandler.removeCallbacks(loc);
-    	loc.setStop(-1);
-    	mStartMode = -1;
+    	
     }
+    
 	@Override
 	public IBinder onBind(Intent intent) {
 		// TODO Auto-generated method stub
-		return null;
+		return bind;
 	}
 }

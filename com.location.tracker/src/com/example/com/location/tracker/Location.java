@@ -282,8 +282,14 @@ class CallBack extends ICallBack.Stub {
 			
 		} else if (returnCode == Common.START_TRACKING) {
 			StartAnimation();
+			ToggleButton tbutton = (ToggleButton) findViewById(R.id.togglebutton);
+			tbutton.setChecked(true);
+			  
 		} else if (returnCode == Common.STOP_TRACKING) {
 			stopAnimation();
+			ToggleButton tbutton = (ToggleButton) findViewById(R.id.togglebutton);
+			tbutton.setChecked(false);
+			
 		}
 	}
 

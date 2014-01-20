@@ -47,6 +47,9 @@ public class StateMachine {
 	}
 	public int getCurrentState() {
 		currentState = getState();
+		if (currentState == -1) {
+			currentState = 1;
+		}
 		return currentState;
 	}
 	 public boolean setState(int state) {
@@ -60,7 +63,7 @@ public class StateMachine {
 	    public int getState() {
 	    	SharedPreferences settings = context.getSharedPreferences(PREFS_NAME,
 	                Activity.MODE_PRIVATE);
-	         int uname = (int) settings.getInt("state", (Integer) null);
+	         int uname = (int) settings.getInt("state", -1);
 	         return uname;
 	    }
 	private static StateMachine val = null;

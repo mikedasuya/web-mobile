@@ -83,9 +83,11 @@ public class ExampleService extends Service {
 	    						new WorkerThread(email, ExampleService.this, mhandler);
 	    				work.start();
 	    				sendUI(Common.START_TRACKING);
+	    				st.onEvent(Common.EVENT.EVENT_START_TRACKING);
 	    			}
 	    		} else if (msg.arg1 == Common.STOP_TRACKING) {
 	    			if (work != null) {
+	    				st.onEvent(Common.EVENT.EVENT_STOP_TRACKING);
 	    				sendUI(Common.STOP_TRACKING);
 	    				work.stopRunning();
 	    				work = null;
@@ -94,21 +96,23 @@ public class ExampleService extends Service {
 	    		}
 	    	}
 
-			private void sendUI(int startTracking) {
-				// TODO Auto-generated method stub
-				Iterator<ICallBack> iterator = cbList.iterator();
-    		    while(iterator.hasNext()) {
-    		        ICallBack element = iterator.next();
-    		        try {
-						element.result("some", startTracking);
-					} catch (RemoteException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-    		        
-    		    }
-			}
+			
 		};
+		
+		public void sendUI(int startTracking) {
+			// TODO Auto-generated method stub
+			Iterator<ICallBack> iterator = cbList.iterator();
+		    while(iterator.hasNext()) {
+		        ICallBack element = iterator.next();
+		        try {
+					element.result("some", startTracking);
+				} catch (RemoteException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+		        
+		    }
+		}
 	
 	class ConnectionBinder extends IServerConnection.Stub {
 
@@ -121,6 +125,10 @@ public class ExampleService extends Service {
 			} else {
 				cbList.add(cb);
 				result = true;
+				Log.v("tracker", " register service" + st.getCurrentState());
+				if (st.getCurrentState() == Common.STATE.STATE_TRACKING.getVal()) {
+					sendUI(Common.START_TRACKING);
+				}
 			}
 			
 			return result;
@@ -138,17 +146,23 @@ public class ExampleService extends Service {
 		}
 		@Override
 		public boolean startTracking(String email) {
-			String emails = getEmailFromPersistent();
-			if (emails == null) {
-				setEmailPersistent(email);
-			} else 	if (emails != null && emails.compareTo(email) != 0) {
-				return false;
+			boolean result = false;
+			if (st.getCurrentState() ==  Common.STATE.STATE_TRACKING.getVal()) {
+				result = false;
+			} else {
+				String emails = getEmailFromPersistent();
+				if (emails == null) {
+					setEmailPersistent(email);
+				} else 	if (emails != null && emails.compareTo(email) != 0) {
+					return false;
+				}
+				Message msg = new Message();
+				msg.arg1 = Common.START_TRACKING;
+				msg.obj = email;
+				mhandlerUICommands.sendMessage(msg);
+				result = true;
 			}
-			Message msg = new Message();
-			msg.arg1 = Common.START_TRACKING;
-			msg.obj = email;
-			mhandlerUICommands.sendMessage(msg);
-			return true;
+			return result;
 			
 		}
 		@Override
@@ -171,6 +185,7 @@ public class ExampleService extends Service {
 		public boolean isTracking() throws RemoteException {
 			// TODO Auto-generated method stub
 			Log.v("tracker ", "is Tracking");
+			Log.v("tracker", "state machine " + st.getCurrentState());
 			if (st != null ) {
 				if (st.getCurrentState() == Common.STATE.STATE_TRACKING.getVal()) {
 					return true;
@@ -245,7 +260,7 @@ public class ExampleService extends Service {
 	@Override
     public boolean onUnbind(Intent intent) {
         // All clients have unbound with unbindService()
-        return mAllowRebind;
+        return true;
     }
     @Override
     public void onRebind(Intent intent) {

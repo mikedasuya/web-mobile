@@ -153,12 +153,7 @@ public class ExampleService extends Service {
 			if (st.getCurrentState() ==  Common.STATE.STATE_TRACKING.getVal()) {
 				result = false;
 			} else {
-				String emails = getEmailFromPersistent();
-				if (emails == null) {
-					setEmailPersistent(email);
-				} else 	if (emails != null && emails.compareTo(email) != 0) {
-					return false;
-				}
+				setEmailPersistent(email);
 				Message msg = new Message();
 				msg.arg1 = Common.START_TRACKING;
 				msg.obj = email;

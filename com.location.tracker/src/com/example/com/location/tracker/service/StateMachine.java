@@ -7,12 +7,13 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Handler;
 import android.os.Message;
+import android.util.Log;
 
 import com.example.com.location.common.Common;
 import com.example.com.location.common.Common.EVENT;
 
 public class StateMachine {
-	private static final String PREFS_NAME = "state";
+	private static final String PREFS_NAME = "stateofservice";
 	private int currentState;
 	Handler mhandler;
 	Context  context;
@@ -29,7 +30,10 @@ public class StateMachine {
 		return val;
 	}
 	public boolean onEvent(EVENT ev) {
+		Log.v("tracker onEvent ", "current state--"+ currentState);
+		Log.v("tracker onEvent ", "event state--"+ ev.getVal());
 		currentState = Common.ar[currentState][ev.getVal()];
+		Log.v("tracker onEvent ", "current state- after event-"+ currentState);
 		Message msg = new Message();
 		if (currentState == Common.STATE.STATE_INITIAL.getVal()) {
 			msg.arg1 = currentState;
@@ -42,20 +46,20 @@ public class StateMachine {
 			msg.arg1 = currentState;
 		}
 		setState(currentState);
+		Log.v("tracker  --- gettter on ebent ---------", " "+getState());
 		mhandler.sendMessage(msg);
 		return true;
 	}
 	public int getCurrentState() {
 		currentState = getState();
-		if (currentState == -1) {
-			currentState = 1;
-		}
+		Log.v("tracker", "getState from preference " + currentState);
 		return currentState;
 	}
 	 public boolean setState(int state) {
-	    	SharedPreferences settings = context.getSharedPreferences(PREFS_NAME, 0);
+		 	Log.v("tracker", "set state" + state);
+	    	SharedPreferences settings = context.getSharedPreferences(PREFS_NAME, Activity.MODE_PRIVATE);
 	    	SharedPreferences.Editor editor = settings.edit();
-	    	editor.putInt("state",state);
+	    	editor.putInt("status",state);
 	    	editor.commit();
 	    	return true;
 	    }
@@ -63,7 +67,7 @@ public class StateMachine {
 	    public int getState() {
 	    	SharedPreferences settings = context.getSharedPreferences(PREFS_NAME,
 	                Activity.MODE_PRIVATE);
-	         int uname = (int) settings.getInt("state", -1);
+	         int uname = settings.getInt("status", 0);
 	         return uname;
 	    }
 	private static StateMachine val = null;

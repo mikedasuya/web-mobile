@@ -8,4 +8,5 @@ interface IServerConnection {
 	boolean registerCallBack(ICallBack cb);
 	boolean unregister(ICallBack cb);
 	boolean isTracking();
+	boolean syncUI();
 }

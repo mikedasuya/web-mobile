@@ -34,9 +34,14 @@ public class WorkerThread extends Thread {
 		mhandleLocalContext = new Handler() {
 			public void handleMessage(Message msg) {
 				Message msg1 = new Message();
-				msg1.arg1 = msg.arg1;
-				msg1.obj = msg.obj;
-				mhandler.sendMessage(msg1);
+				if (msg.arg1 == Common.STOP_WORKER_THREAD) {
+					mhandleLocalContext.removeCallbacks(obj);
+					mhandleLocalContext.getLooper().quit();
+				} else {
+					msg1.arg1 = msg.arg1;
+					msg1.obj = msg.obj;
+					mhandler.sendMessage(msg1);
+				}
 	    		
 			}
 		};
@@ -48,10 +53,10 @@ public class WorkerThread extends Thread {
 	 }
 	public void stopRunning() {
 		// TODO Auto-generated method stub
-		Log.v("tracker", "Worker thread ----stop");
+		Log.v("tracker", "Worker thread ----stop -----------111");
 		obj.stopRunning();
-		mhandleLocalContext.removeCallbacks(obj);
-		mhandleLocalContext.getLooper().quit();
+		//mhandleLocalContext.removeCallbacks(obj);
+		//mhandleLocalContext.getLooper().quit();
 		
 	}
 	

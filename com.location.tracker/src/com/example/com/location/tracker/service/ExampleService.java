@@ -1,9 +1,11 @@
 package com.example.com.location.tracker.service;
 
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 
@@ -31,39 +33,41 @@ public class ExampleService extends Service {
     private String PREFS_NAME = "prefs";
     IBinder bind = new ConnectionBinder();
     
-    Set<ICallBack> cbList = new HashSet<ICallBack>();
+    HashMap<ICallBack, ICallBack> cbList = new HashMap<ICallBack, ICallBack>();
     Handler mhandler = new Handler() {
     	public void handleMessage(Message msg) {
     		if (msg.arg1 == Common.MAXIMUM_COUNT) {
     			//sendNotification();
     			//stopSelf();
     		} if (msg.arg1 == Common.ERROR_SERVER_PROBLEM) {
-    			Iterator<ICallBack> iterator = cbList.iterator();
-    		    while(iterator.hasNext()) {
-    		        ICallBack element = iterator.next();
-    		        try {
-						element.result("Server Error", Common.ERROR_SERVER_PROBLEM);
-					} catch (RemoteException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-    		        
-    		    }
+    			
+    			    Iterator it = cbList.entrySet().iterator();
+    			    while (it.hasNext()) {
+    			        Map.Entry pairs = (Map.Entry)it.next();
+    			        ICallBack element = (ICallBack) pairs.getKey();
+    			        try {
+							element.result("Server Error", Common.ERROR_SERVER_PROBLEM);
+						} catch (RemoteException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+    			     }
+    			
     			destroy();
     			stopSelf();
     			sendNotification("Server Not responding Try again");
     		} else if (msg.arg1 == Common.GEO_NOT_FOUND) {
-    			Iterator<ICallBack> iterator = cbList.iterator();
-    		    while(iterator.hasNext()) {
-    		        ICallBack element = iterator.next();
-    		        try {
-						element.result("Server Error", Common.ERROR_SERVER_PROBLEM);
-					} catch (RemoteException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-    		        
-    		    }
+    			 Iterator it = cbList.entrySet().iterator();
+ 			    while (it.hasNext()) {
+ 			        Map.Entry pairs = (Map.Entry)it.next();
+ 			        ICallBack element = (ICallBack) pairs.getKey();
+ 			        try {
+							element.result("Server Error", Common.GEO_NOT_FOUND);
+						} catch (RemoteException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+ 			     }
     			//destroy();
     			//stopSelf();
     			sendNotification("Geo Location service not found");
@@ -71,7 +75,7 @@ public class ExampleService extends Service {
     	}
 	};
 	StateMachine st =  StateMachine.getInstance(mhandler, this);
-	WorkerThread work;
+	WorkerThread work = null;
 	 Handler mhandlerUICommands = new Handler() {
 	    	public void handleMessage(Message msg) {
 	    		if (msg.arg1 == Common.START_TRACKING) {
@@ -86,11 +90,15 @@ public class ExampleService extends Service {
 	    				st.onEvent(Common.EVENT.EVENT_START_TRACKING);
 	    			}
 	    		} else if (msg.arg1 == Common.STOP_TRACKING) {
+	    			
 	    			if (work != null) {
 	    				st.onEvent(Common.EVENT.EVENT_STOP_TRACKING);
 	    				sendUI(Common.STOP_TRACKING);
 	    				work.stopRunning();
+	    				Log.v("tracker worker thread state -", " " +work.isAlive());
 	    				work = null;
+	    			} else {
+	    				Log.v("tracker", "work = null");
 	    			}
 	    			
 	    		}
@@ -101,17 +109,17 @@ public class ExampleService extends Service {
 		
 		public void sendUI(int startTracking) {
 			// TODO Auto-generated method stub
-			Iterator<ICallBack> iterator = cbList.iterator();
-		    while(iterator.hasNext()) {
-		        ICallBack element = iterator.next();
-		        try {
-					element.result("some", startTracking);
-				} catch (RemoteException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-		        
-		    }
+			 Iterator it = cbList.entrySet().iterator();
+			    while (it.hasNext()) {
+			        Map.Entry pairs = (Map.Entry)it.next();
+			        ICallBack element = (ICallBack) pairs.getKey();
+			        try {
+						element.result("", startTracking);
+					} catch (RemoteException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+			     }
 		}
 	
 	class ConnectionBinder extends IServerConnection.Stub {
@@ -123,12 +131,10 @@ public class ExampleService extends Service {
 			if (cb == null) {
 				result = false;
 			} else {
-				cbList.add(cb);
+				Log.v("tracker", "register callback --add ");
+				cbList.put(cb, cb);
 				result = true;
-				Log.v("tracker", " register service" + st.getCurrentState());
-				if (st.getCurrentState() == Common.STATE.STATE_TRACKING.getVal()) {
-					sendUI(Common.START_TRACKING);
-				}
+				
 			}
 			
 			return result;
@@ -140,6 +146,7 @@ public class ExampleService extends Service {
 			boolean result = false;
 			if (cb != null) {
 				result = true;
+				Log.v("tracker", "register callback --remove");
 				cbList.remove(cb);
 			}
 			return result;
@@ -167,12 +174,12 @@ public class ExampleService extends Service {
 		}
 		@Override
 		public boolean stopTracking(String email) {
-			String emails = getEmailFromPersistent();
+			/*String emails = getEmailFromPersistent();
 			if (emails == null) {
 				setEmailPersistent(email);
 			} else 	if (emails != null && emails.compareTo(email) != 0) {
 				return false;
-			}
+			}*/
 			Message msg = new Message();
 			msg.arg1 = Common.STOP_TRACKING;
 			msg.obj = email;
@@ -194,6 +201,19 @@ public class ExampleService extends Service {
 				Log.v("tracker ", "service state machine is null");
 			}
 			return false;
+		}
+
+		@Override
+		public boolean syncUI() throws RemoteException {
+			// TODO Auto-generated method stub
+			if (st.getCurrentState() == Common.STATE.STATE_TRACKING.getVal()) {
+				Log.v("tracker", "---syncui--tracking");
+				sendUI(Common.START_TRACKING);
+			} else if (st.getCurrentState() == Common.STATE.STATE_INITIAL.getVal()) {
+				sendUI(Common.STOP_TRACKING);
+				Log.v("tracker", "---syncui--initial");
+			}
+			return true;
 		}
 	
 	};
@@ -218,7 +238,7 @@ public class ExampleService extends Service {
     @Override
     public void onCreate() {
         // The service is being created
-    	st.setState(Common.STATE.STATE_INITIAL.getVal());
+    	Log.v("tracker", "onCreate Service");
     }
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
@@ -226,10 +246,10 @@ public class ExampleService extends Service {
     	int state = st.getCurrentState();
     	if (intent == null) {
     		if (state == Common.STATE.STATE_TRACKING.getVal()) {
-    			System.out.println("intent null state tracking");
+    			System.out.println("tracker ---- intent null state tracking");
     			String email = getEmailFromPersistent();
     			if (email == null) {
-    				System.out.println(" intent null email cannt be null");
+    				System.out.println(" tracker ---- intent null email cannt be null");
     				Message msg = new Message();
     				msg.arg1 = Common.START_TRACKING;
     				msg.obj = email;
@@ -273,7 +293,7 @@ public class ExampleService extends Service {
     @Override
     public void onDestroy() {
         // The service is no longer used and is being destroyed
-    	System.out.println("destroy");
+    	System.out.println("tracker ------------------ ---  destroy");
     	
     }
     

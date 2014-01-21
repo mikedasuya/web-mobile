@@ -30,7 +30,7 @@ public class ServerConnection {
 		// TODO Auto-generated constructor stub
 	}
 
-	public boolean sendEmailLatLong(String email,String lat,String longi) throws Exception{
+	public boolean sendEmailLatLong(String email,String lat,String longi) throws IOException{
 		System.out.println("tracker ---- " + lat);
 		HttpClient httpclient = new DefaultHttpClient();
 		// Execute the request
@@ -57,7 +57,7 @@ public class ServerConnection {
 		 	// Get hold of the response entity
 	       // HttpEntity entity = response.getEntity();
 	        
-		} catch (Exception e) {
+		} catch (IOException e) {
 			e.printStackTrace();
 			throw e;
 		}

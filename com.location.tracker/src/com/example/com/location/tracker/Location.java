@@ -39,12 +39,11 @@ public class Location extends Activity {
 	 
 @Override
 protected void onCreate(Bundle savedInstanceState) {
+	Log.v("tracker", "onCreate");
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_main);
     GPSTracker mGPS = new GPSTracker(this);
-    Intent in = new Intent(this, ExampleService.class);
-	bindService(in, connectionService, Context.BIND_AUTO_CREATE);
-   
+    
     //TextView text = (TextView) findViewById(R.id.texts);
     
     if(mGPS.canGetLocation ){
@@ -54,8 +53,8 @@ protected void onCreate(Bundle savedInstanceState) {
       //  text.setText("Unabletofind");
         System.out.println("Unable");
     }
-    
-    final String val = "white";
+    Intent in = new Intent(this, ExampleService.class);
+	final String val = "white";
     final LinearLayout root = (LinearLayout) findViewById(R.id.layout);
     root.post(new Runnable() { 
     public void run() { 
@@ -66,9 +65,9 @@ protected void onCreate(Bundle savedInstanceState) {
         getWindowManager().getDefaultDisplay().getMetrics(metrics);   
         int screenHeight = metrics.heightPixels;
         int screenWidth = metrics.widthPixels;
-        Log.i("MY", "Actual Screen Height = " + screenHeight + " Width = " + screenWidth);   
+        Log.i("MY tracker create", "Actual Screen Height = " + screenHeight + " Width = " + screenWidth);   
         int n = screenWidth/30;
-        Log.i("MY", "n = " + n); 
+        Log.i("MY tracker create", "n = " + n); 
         for (int i = 0; i < n;i++) {
         	final ImageView imageView = new ImageView(Location.this);
             //setting image resource
@@ -79,7 +78,7 @@ protected void onCreate(Bundle savedInstanceState) {
             }
             LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(30, 30, 1);
             imageView.setLayoutParams(params);
-            Log.i("MY", "adding" + i); 
+            Log.i("MY tracker create", "adding" + i); 
         	root.addView(imageView);
         }
         try {
@@ -88,14 +87,16 @@ protected void onCreate(Bundle savedInstanceState) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-        
-       
-         
-    } 
-   }); 
+        SyncUI ui = new SyncUI();
+    	handler.postDelayed(ui, 0);
+     } //run  
+   } //runable
+   	); 
    cb = new CallBack();
+   startService(in);
+   bindService(in, connectionService, Context.BIND_AUTO_CREATE);
+   Log.i("MY", "FINISHED OnCreate");
     
-      Log.i("MY", "FINISHED OnCreate");
    
 }
 
@@ -185,6 +186,7 @@ class Animation implements Runnable {
 
 @Override
 public void onDestroy() {
+	Log.v("tracker", "OnDestroy UI");
 	super.onDestroy();
 	handler.removeCallbacks(an);
 	try {
@@ -237,6 +239,7 @@ public void onToggleClicked(View view) {
     		//stopAnimation();
     		try {
     			if (serverCon != null) {
+    				Log.v("tracker", "Toggle button ------stop");
     				serverCon.stopTracking(val);
     			}
 			} catch (RemoteException e) {
@@ -246,9 +249,37 @@ public void onToggleClicked(View view) {
     	}
     }
 }
+
+class SyncUI implements Runnable {
+
+	@Override
+	public void run() {
+		// TODO Auto-generated method stub
+		if (serverCon != null) {
+			try {
+				Log.v("tracker", "Sync UI --------------------");
+				serverCon.syncUI();
+			} catch (RemoteException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		} else {
+			Log.v("tracker", "Sync UI reset");
+			handler.postDelayed(this, 1000);
+		}
+	}
+	
+}
+@Override
+public void onResume() {
+	Log.v("tracker", "onresume");
+	super.onResume();
+}
+
 @SuppressLint("NewApi")
 @Override
 public void onStart() {
+	Log.v("tracker", "onStart");
 	ToggleButton tbutton = (ToggleButton) findViewById(R.id.togglebutton);
 	if(isMyServiceRunning()) {
 		tbutton.setChecked(true);
@@ -281,17 +312,35 @@ class CallBack extends ICallBack.Stub {
             });
 			
 		} else if (returnCode == Common.START_TRACKING) {
+			Log.e("tracker", "-------------Location callb start tracking  ui");
 			StartAnimation();
-			ToggleButton tbutton = (ToggleButton) findViewById(R.id.togglebutton);
-			tbutton.setChecked(true);
+			runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                   	ToggleButton tbutton = (ToggleButton) findViewById(R.id.togglebutton);
+                	tbutton.setChecked(true);
+                }
+            });
+			
 			  
 		} else if (returnCode == Common.STOP_TRACKING) {
 			stopAnimation();
-			ToggleButton tbutton = (ToggleButton) findViewById(R.id.togglebutton);
-			tbutton.setChecked(false);
+			runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                	Log.e("tracker", "-------------Location call bcack stop tracking ui");
+                
+        			ToggleButton tbutton = (ToggleButton) findViewById(R.id.togglebutton);
+        			tbutton.setChecked(false);
+                }
+            });
 			
 		}
 	}
+	@Override
+	 public boolean equals(Object obj) {
+			return true;
+	 }
 
 	
 };
@@ -310,7 +359,7 @@ ServiceConnection connectionService = new ServiceConnection() {
 			e.printStackTrace();
 		}
 	}
-
+	
 	@Override
 	public void onServiceDisconnected(ComponentName name) {
 		// TODO Auto-generated method stub

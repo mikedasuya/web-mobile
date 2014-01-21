@@ -40,7 +40,7 @@ public class ExampleService extends Service {
     			//sendNotification();
     			//stopSelf();
     		} if (msg.arg1 == Common.ERROR_SERVER_PROBLEM) {
-    			
+    				st.onEvent(Common.EVENT.EVENT_STOP_TRACKING);
     			    Iterator it = cbList.entrySet().iterator();
     			    while (it.hasNext()) {
     			        Map.Entry pairs = (Map.Entry)it.next();
@@ -144,11 +144,7 @@ public class ExampleService extends Service {
 		public boolean unregister(ICallBack cb) throws RemoteException {
 			// TODO Auto-generated method stub
 			boolean result = false;
-			if (cb != null) {
-				result = true;
-				Log.v("tracker", "register callback --remove");
-				cbList.remove(cb);
-			}
+			cbList.clear();
 			return result;
 		}
 		@Override

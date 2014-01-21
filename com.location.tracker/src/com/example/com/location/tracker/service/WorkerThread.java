@@ -46,7 +46,7 @@ public class WorkerThread extends Thread {
 			}
 		};
 		obj = new ServerRunnable(context, mhandleLocalContext ,email);
-		mhandleLocalContext.postAtTime(obj, 0);
+		mhandleLocalContext.postDelayed(obj, 0);
 		Log.v("tracker", "Worker thread ---before loop");
 		 Looper.loop();
 

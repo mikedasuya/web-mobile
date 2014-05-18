@@ -16,5 +16,11 @@
     <style name="AppTheme" parent="AppBaseTheme">
         <!-- All customizations that are NOT specific to a particular API-level can go here. -->
     </style>
+    <style name="myToggle">
+    <item name="android:textOn">""</item>
+    <item name="android:textOff">""</item>
+    <item name="android:background">@drawable/togglebtlayout</item>
+	</style>
+    
 
 </resources>

@@ -6,5 +6,18 @@
     <string name="hello_world">Start Geo Location</string>
      <string name="emailString">Enter Email</string>
      <string name="email">Email</string>
+     <string name="textStatus"> Status</string>
+       <string name="textStatusEmail"> Email</string>
+     <string name = "textNetwork"> Network</string>
+     <string name="textFreq">Frequency</string>
+     <string-array name="frequency">
+        <item>5 seconds</item>
+        <item>30 seconds</item>
+        <item>60 seconds</item>
+        <item>5 minutes</item>
+        <item>10 minutes</item>
+        <item>30 minutes</item>
+        <item>60 minutes</item>
+     </string-array>
 
 </resources>

@@ -10,6 +10,22 @@ public class Common {
 	public static final int GEO_NOT_FOUND = 13;
 	public static final int STOP_TRACKING = 14;
 	public static final int STOP_WORKER_THREAD = 15;
+	public static final String Email = "Email";
+	public static final String PREFS_NAME_FREQ = "prefs_freq";
+	public static final String PREFS_NAME_EMAIL = "prefs_email";
+	public static final String NULL = "null";
+	public static final String FREQ = "FREQ";
+	public static final int SYNC_UI = 16;
+	public static final long ANIMATION_TIME = 1000;
+	public static final int ANIMATION_STATE_RUNNIG = 16;
+	public static final int ANIMATION_STATE_NOT_RUNNING = 17;
+	public static final int NOTIFICATION_ID_NO_DATA_CONNECTION = 1;
+	public static final String ERROR_NO_DATA_CONNECTION = "No data connection, enable wifi";
+	public static final int NOTIFICATION_ID_NO_GEO = 2;
+	public static final String ERROR_NO_GEO = "GEO NOT AVAILABlE TRY AGAIN";
+	public static final int Service_RUNNING = 18;
+	public static final int Service_NOT_RUNNING = 19;
+	
 	public static CharSequence text = "No Wifi/data, restart location tracker";
 	public static String url = "http://162.243.3.123:8080/location/Main";
 	public enum EVENT {

@@ -37,7 +37,7 @@
          android:text="@string/email" />
 
      <ToggleButton
-         android:id="@+id/togglebutton"
+         android:id="@+id/togglebutton1"
          android:layout_width="wrap_content"
          android:layout_height="wrap_content"
          android:layout_alignLeft="@+id/edittext"

@@ -2,7 +2,9 @@ package com.example.com.location.tracker.service;
 
 import com.example.com.location.common.Common;
 
+import android.app.Activity;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
@@ -13,15 +15,22 @@ public class WorkerThread extends Thread {
 	Handler mhandler;
 	Handler mhandleLocalContext ; //= new Handler();
 	Context context = null;
-	String email;
 	ServerRunnable obj = null;
+	public static WorkerThread th = null;
 	
-	WorkerThread(String ema, Context cont, Handler handle) {
+	WorkerThread(Context cont, Handler handle) {
 		context = cont;
-		email = ema;
 		mhandler = handle;
 		
 	}
+	
+	public static synchronized  WorkerThread getInstance(Context cont, Handler handle) {
+		if (th == null) {
+			th = new WorkerThread(cont, handle);
+		}
+		return th;
+	}
+	
 	public void errorReported(int error) {
 		Message msg = new Message();
 		msg.arg1 = error;
@@ -37,15 +46,16 @@ public class WorkerThread extends Thread {
 				if (msg.arg1 == Common.STOP_WORKER_THREAD) {
 					mhandleLocalContext.removeCallbacks(obj);
 					mhandleLocalContext.getLooper().quit();
-				} else {
-					msg1.arg1 = msg.arg1;
-					msg1.obj = msg.obj;
-					mhandler.sendMessage(msg1);
-				}
+				} 
+				msg1.arg1 = msg.arg1;
+				msg1.obj = msg.obj;
+				mhandler.sendMessage(msg1);
+				
 	    		
 			}
 		};
-		obj = new ServerRunnable(context, mhandleLocalContext ,email);
+		
+		obj = new ServerRunnable(context, mhandleLocalContext);
 		mhandleLocalContext.postDelayed(obj, 0);
 		Log.v("tracker", "Worker thread ---before loop");
 		 Looper.loop();
@@ -54,11 +64,15 @@ public class WorkerThread extends Thread {
 	public void stopRunning() {
 		// TODO Auto-generated method stub
 		Log.v("tracker", "Worker thread ----stop -----------111");
-		obj.stopRunning();
+		if (obj != null) {
+			obj.stopRunning();
+			mhandleLocalContext.removeCallbacks(obj);
+		}
+		th = null;
 		//mhandleLocalContext.removeCallbacks(obj);
 		//mhandleLocalContext.getLooper().quit();
 		
 	}
-	
+		
 	
 }

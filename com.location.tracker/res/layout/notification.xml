@@ -1,0 +1,21 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/layout"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:padding="10dp"
+    android:orientation="horizontal" >
+    
+    <ImageView android:id="@+id/image11"
+        android:layout_width="50dip"
+        android:layout_height="fill_parent"
+        android:layout_marginRight="10dp" />
+    
+    <TextView android:id="@+id/title"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+         android:gravity="center"
+         android:textColor="#fffafa"
+         android:textSize="20dip"
+        />
+    
+</LinearLayout>

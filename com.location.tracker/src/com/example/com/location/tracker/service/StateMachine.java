@@ -56,7 +56,7 @@ public class StateMachine {
 		return currentState;
 	}
 	 public boolean setState(int state) {
-		 	Log.v("tracker", "set state" + state);
+		 	Log.v("tracker --- ", "set state" + state);
 	    	SharedPreferences settings = context.getSharedPreferences(PREFS_NAME, Activity.MODE_PRIVATE);
 	    	SharedPreferences.Editor editor = settings.edit();
 	    	editor.putInt("status",state);

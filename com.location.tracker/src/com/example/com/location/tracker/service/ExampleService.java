@@ -8,13 +8,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-
 import com.example.com.location.common.Common;
+import com.example.com.location.tracker.NewUILocation;
 import com.example.com.location.tracker.R;
 
 import android.app.Activity;
 import android.app.Notification;
+import android.app.Notification.Builder;
 import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
@@ -25,12 +27,13 @@ import android.os.Message;
 import android.os.RemoteException;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
+import android.widget.RemoteViews;
 
 public class ExampleService extends Service {
     int mStartMode;       // indicates how to behave if the service is killed
     IBinder mBinder;      // interface for clients that bind
     boolean mAllowRebind; // indicates whether onRebind should be used
-    private String PREFS_NAME = "prefs";
+     
     IBinder bind = new ConnectionBinder();
     
     HashMap<ICallBack, ICallBack> cbList = new HashMap<ICallBack, ICallBack>();
@@ -40,8 +43,7 @@ public class ExampleService extends Service {
     			//sendNotification();
     			//stopSelf();
     		} if (msg.arg1 == Common.ERROR_SERVER_PROBLEM) {
-    				st.onEvent(Common.EVENT.EVENT_STOP_TRACKING);
-    			    Iterator it = cbList.entrySet().iterator();
+    				Iterator it = cbList.entrySet().iterator();
     			    while (it.hasNext()) {
     			        Map.Entry pairs = (Map.Entry)it.next();
     			        ICallBack element = (ICallBack) pairs.getKey();
@@ -52,10 +54,7 @@ public class ExampleService extends Service {
 							e.printStackTrace();
 						}
     			     }
-    			
-    			destroy();
-    			stopSelf();
-    			sendNotification("Server Not responding Try again");
+    			sendNotification(Common.NOTIFICATION_ID_NO_DATA_CONNECTION, Common.ERROR_NO_DATA_CONNECTION);
     		} else if (msg.arg1 == Common.GEO_NOT_FOUND) {
     			 Iterator it = cbList.entrySet().iterator();
  			    while (it.hasNext()) {
@@ -68,9 +67,17 @@ public class ExampleService extends Service {
 							e.printStackTrace();
 						}
  			     }
+ 			    Message msg1 = new Message();
+ 				msg.arg1 = Common.STOP_TRACKING;
+ 				msg.obj = getEmailFromPersistent();
+ 				mhandlerUICommands.sendMessage(msg);
+ 				sendNotification(Common.NOTIFICATION_ID_NO_GEO, Common.ERROR_NO_GEO);
+ 			    
+ 			    stopSelf();
+ 			    destroy();
     			//destroy();
     			//stopSelf();
-    			sendNotification("Geo Location service not found");
+    			
     		}
     	}
 	};
@@ -82,30 +89,81 @@ public class ExampleService extends Service {
 	    			//sendNotification();
 	    			//stopSelf();
 	    			String email = (String) msg.obj;
-	    			if (work == null) {
-	    				work = 
-	    						new WorkerThread(email, ExampleService.this, mhandler);
-	    				work.start();
-	    				sendUI(Common.START_TRACKING);
-	    				st.onEvent(Common.EVENT.EVENT_START_TRACKING);
-	    			}
+	    			int freq = msg.arg2;
+	    			setFrequence(freq);
+    				setEmailPersistent(email);
+    				WorkerThread.getInstance(ExampleService.this, mhandler).start();
+    				st.onEvent(Common.EVENT.EVENT_START_TRACKING);
+    			    sendUI(Common.START_TRACKING);
+    			    showRunningNotification(Common.Service_RUNNING);
 	    		} else if (msg.arg1 == Common.STOP_TRACKING) {
-	    			
-	    			if (work != null) {
-	    				st.onEvent(Common.EVENT.EVENT_STOP_TRACKING);
-	    				sendUI(Common.STOP_TRACKING);
-	    				work.stopRunning();
-	    				Log.v("tracker worker thread state -", " " +work.isAlive());
-	    				work = null;
-	    			} else {
-	    				Log.v("tracker", "work = null");
-	    			}
-	    			
+	    			removeNotification(Common.NOTIFICATION_ID_NO_DATA_CONNECTION);
+	    			removeNotification(Common.NOTIFICATION_ID_NO_GEO);
+	    			WorkerThread.getInstance(ExampleService.this, mhandler).stopRunning();
+	    			st.onEvent(Common.EVENT.EVENT_STOP_TRACKING);
+	    			sendUI(Common.STOP_TRACKING);
+	    			showRunningNotification(Common.Service_NOT_RUNNING);
 	    		}
 	    	}
 
 			
+
+			
+		
 		};
+		private void removeNotification(int notificationIdNoDataConnection) {
+			// TODO Auto-generated method stub
+			NotificationManager mNotificationManager =
+		    	    (NotificationManager) this.getSystemService(Context.NOTIFICATION_SERVICE);
+			mNotificationManager.cancel(notificationIdNoDataConnection);
+		}
+		
+		private void showRunningNotification(int serviceRunning) {
+			// TODO Auto-generated method stub
+			NotificationManager mNotificationManager =
+		    	    (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+			NotificationCompat.Builder mBuilder = null;
+			if (serviceRunning == Common.Service_RUNNING) {
+				 RemoteViews contentView = new RemoteViews(getPackageName(), R.layout.notification);
+			        contentView.setImageViewResource(R.id.image11, R.drawable.main);
+			        contentView.setTextViewText(R.id.title, "Location Tracker Running");			       
+				PendingIntent contentIntent = PendingIntent.getActivity(this, 0,
+			            new Intent(this, NewUILocation.class).setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP), 0);
+			
+		    	
+		    	android.support.v4.app.NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this);
+		        notificationBuilder.setAutoCancel(false);
+		        notificationBuilder.setSmallIcon(R.drawable.main);
+		        notificationBuilder.setContentTitle(" Location Tracker");
+		        notificationBuilder.setTicker("Location Tracker Running", contentView);
+		        Notification noti = notificationBuilder.build();
+		        noti.contentIntent = contentIntent;
+		        noti.contentView = contentView;
+		        mNotificationManager.notify(Common.Service_RUNNING, noti);
+		    	
+		    	
+			} else if (serviceRunning == Common.Service_NOT_RUNNING) {
+				mNotificationManager.cancel(Common.Service_RUNNING);
+			}
+		}
+		
+		private boolean setFrequence(int freq) {
+			// TODO Auto-generated method stub
+			Log.v("tracker", "set frequencey" + freq);
+	    	SharedPreferences settings = ExampleService.this.getSharedPreferences(Common.PREFS_NAME_FREQ, Activity.MODE_PRIVATE);
+	    	SharedPreferences.Editor editor = settings.edit();
+	    	editor.putInt(Common.FREQ,freq);
+	    	editor.commit();
+	    	return true;
+		}
+		
+		public int getFrequenceInternal(int freq) {
+			// TODO Auto-generated method stub
+			SharedPreferences settings = this.getSharedPreferences(Common.PREFS_NAME_FREQ,
+	                Activity.MODE_PRIVATE);
+	         int uname = settings.getInt(Common.FREQ, 0);
+	         return uname;
+		}
 		
 		public void sendUI(int startTracking) {
 			// TODO Auto-generated method stub
@@ -148,16 +206,19 @@ public class ExampleService extends Service {
 			return result;
 		}
 		@Override
-		public boolean startTracking(String email) {
+		public boolean startTracking(String email, int freq) {
 			boolean result = false;
 			if (st.getCurrentState() ==  Common.STATE.STATE_TRACKING.getVal()) {
 				result = false;
 			} else {
-				setEmailPersistent(email);
-				Message msg = new Message();
-				msg.arg1 = Common.START_TRACKING;
-				msg.obj = email;
-				mhandlerUICommands.sendMessage(msg);
+				if (st.getCurrentState() != Common.STATE.STATE_TRACKING.getVal()) {
+					setEmailPersistent(email);
+					Message msg = new Message();
+					msg.arg1 = Common.START_TRACKING;
+					msg.obj = email;
+					msg.arg2 = freq;
+					mhandlerUICommands.sendMessage(msg);
+				}
 				result = true;
 			}
 			return result;
@@ -197,20 +258,54 @@ public class ExampleService extends Service {
 		@Override
 		public boolean syncUI() throws RemoteException {
 			// TODO Auto-generated method stub
+			Log.v("tracker", "---sync--tracking 1");
 			if (st.getCurrentState() == Common.STATE.STATE_TRACKING.getVal()) {
-				Log.v("tracker", "---syncui--tracking");
+				Log.v("tracker", "---sync--tracking");
 				sendUI(Common.START_TRACKING);
 			} else if (st.getCurrentState() == Common.STATE.STATE_INITIAL.getVal()) {
 				sendUI(Common.STOP_TRACKING);
-				Log.v("tracker", "---syncui--initial");
+				Log.v("tracker", "---syncui--stop tracking");
 			}
 			return true;
+		}
+		
+		@Override
+		public String getEmail() {
+			// TODO Auto-generated method stub
+			SharedPreferences settings = ExampleService.this.getSharedPreferences(Common.PREFS_NAME_EMAIL,
+	                Activity.MODE_PRIVATE);
+			String uname = settings.getString(Common.Email, Common.NULL);
+	         return uname;
+		}
+		@Override
+		public boolean setFrequency(int freq) {
+			// TODO Auto-generated method stub
+			Log.v("tracker", " service -----  set frequencey" + freq);
+	    	SharedPreferences settings = ExampleService.this.getSharedPreferences(Common.PREFS_NAME_FREQ, Activity.MODE_PRIVATE);
+	    	SharedPreferences.Editor editor = settings.edit();
+	    	editor.putInt(Common.FREQ,freq);
+	    	editor.commit();
+	    	return true;
+		}
+
+		@Override
+		public boolean setEmail(String emailq) throws RemoteException {
+			// TODO Auto-generated method stub
+			setEmailPersistent(emailq);
+			return false;
+		}
+
+		@Override
+		public int getFrequency() throws RemoteException {
+			// TODO Auto-generated method stub
+			return getFrequenceInternal(0);
+			
 		}
 	
 	};
 	
 	
-    private void sendNotification(String msg) {
+    private void sendNotification(int msgId, String msg) {
 		// TODO Auto-generated method stub
     	NotificationCompat.Builder mBuilder =
     	        new NotificationCompat.Builder(this)
@@ -222,8 +317,9 @@ public class ExampleService extends Service {
     	NotificationManager mNotificationManager =
     	    (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
     	// mId allows you to update the notification later on.
-    	mNotificationManager.notify(0, mBuilder.build());
-    	       
+    	mNotificationManager.notify(msgId, mBuilder.build());
+    	
+    	    	    	       
 	}
     
     @Override
@@ -239,13 +335,12 @@ public class ExampleService extends Service {
     		if (state == Common.STATE.STATE_TRACKING.getVal()) {
     			System.out.println("tracker ---- intent null state tracking");
     			String email = getEmailFromPersistent();
-    			if (email == null) {
-    				System.out.println(" tracker ---- intent null email cannt be null");
-    				Message msg = new Message();
-    				msg.arg1 = Common.START_TRACKING;
-    				msg.obj = email;
-    				mhandlerUICommands.sendMessage(msg);
-    			}
+    			System.out.println(" tracker ---- intent null email cannt be null");
+    			Message msg = new Message();
+    			msg.arg1 = Common.START_TRACKING;
+    			msg.obj = email;
+    			mhandlerUICommands.sendMessage(msg);
+    			
     		}
     	}
     	return START_STICKY;
@@ -253,17 +348,17 @@ public class ExampleService extends Service {
     }
     
     private boolean setEmailPersistent(String email) {
-    	SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
+    	SharedPreferences settings = getSharedPreferences(Common.PREFS_NAME_EMAIL, 0);
     	SharedPreferences.Editor editor = settings.edit();
-    	editor.putString("email",email);
+    	editor.putString(Common.Email,email);
     	editor.commit();
     	return true;
     }
     
     private String getEmailFromPersistent() {
-    	SharedPreferences settings = getSharedPreferences(PREFS_NAME,
+    	SharedPreferences settings = getSharedPreferences(Common.PREFS_NAME_EMAIL,
                 Activity.MODE_PRIVATE);
-         String uname = settings.getString("email", null);
+         String uname = settings.getString(Common.Email, Common.NULL);
          return uname;
     }
     

@@ -1,0 +1,14 @@
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent" >
+    <EditTextView
+        android:id="@+id/addBtn"
+        android:text="Add New Email Address"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:onClick="addItems"/>
+     
+    
+</LinearLayout>

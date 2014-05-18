@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent" 
+    android:background="@drawable/background" >
+    
+    <TextView
+        android:paddingTop="40dip"
+        android:id="@+id/addBtn"
+        android:text="Email For Tracking"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:onClick="addItems"
+        android:gravity="center"
+        android:textSize="20dip"
+        android:textColor="#b22222"
+        
+     />
+    
+    <View 
+       android:background="#FF000000" 
+       android:layout_height="2dp" 
+       android:layout_width="fill_parent"/>
+    
+    <TextView
+        android:paddingTop="80dip"
+        android:id="@+id/Text"
+        android:text="Add New Email Address for tracking"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:onClick="addItems"
+        android:gravity="center"
+        android:textSize="20dip"
+        android:textColor="#b22222"
+        
+     />
+
+    <EditText
+        android:id="@+id/emailtxt"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:paddingTop="40dip" 
+       />
+    
+	<LinearLayout
+	    android:id="@+id/SaveEmail"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="15dip"
+        android:layout_marginTop="120dp"
+        android:orientation="horizontal"
+        android:gravity="center"
+        
+      >
+
+		<Button
+		    android:id="@+id/SaveEmail1"
+		    android:layout_width="100dip"
+		    android:layout_height="100dip"
+		    android:layout_margin="15dip"
+		    android:background="@drawable/save"
+		    android:gravity="center"
+		    android:textStyle="bold"
+	       	android:textSize="25sp"
+	       	android:text="Save"
+		    />
+    
+    </LinearLayout>
+   
+</LinearLayout>

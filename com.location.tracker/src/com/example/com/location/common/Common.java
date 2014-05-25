@@ -20,9 +20,10 @@ public class Common {
 	public static final int ANIMATION_STATE_RUNNIG = 16;
 	public static final int ANIMATION_STATE_NOT_RUNNING = 17;
 	public static final int NOTIFICATION_ID_NO_DATA_CONNECTION = 1;
-	public static final String ERROR_NO_DATA_CONNECTION = "No data connection, enable wifi";
+	public static final String ERROR_NO_DATA_CONNECTION = "Unable to Sync location, enable data connection";
 	public static final int NOTIFICATION_ID_NO_GEO = 2;
 	public static final String ERROR_NO_GEO = "GEO NOT AVAILABlE TRY AGAIN";
+	public static final int ERROR_VALUE_NO_GEO = 19;
 	public static final int Service_RUNNING = 18;
 	public static final int Service_NOT_RUNNING = 19;
 	

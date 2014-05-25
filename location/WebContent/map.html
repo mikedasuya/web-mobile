@@ -59,20 +59,24 @@ var arrayObject = new Array();
     url = url+"&month="+month;
     url = url+"&year="+year;
     xmlHttp = new XMLHttpRequest();
+   var body = '<?xml version="1.0"?><person><name>Arun</name></person>';
     xmlHttp.open( "GET", url, false );
-    xmlHttp.send( null );
+    xmlHttp.setRequestHeader('Access-Control-Allow-Origin', '*');
+    xmlHttp.send( body );
    
     var jsonObject = JSON.parse(xmlHttp.responseText);
     if (jsonObject.LatLong.length == 0) {
     	 alert(" No data on server");
     } else {
+	arrayObject.length = 0;
     	for (var i=0; i<jsonObject.LatLong.length; i++) {
     	    var obj = new Object();
     	    obj.lat = parseFloat(jsonObject.LatLong[i].lat);
     	    obj.longi = parseFloat(jsonObject.LatLong[i].longi);
     	    console.log(obj.lat);
     	    console.log(obj.longi);
-    	    arrayObject.push(obj);
+	    arrayObject.push(obj);
+	    
     	}
     	drawWayPoints();
     }
@@ -83,16 +87,13 @@ var arrayObject = new Array();
  //}
 
 function initialize() {
-  geocoder = new google.maps.Geocoder();
-  directionsDisplay = new google.maps.DirectionsRenderer();
-  directionsService = new google.maps.DirectionsService();
-  var latlng = new google.maps.LatLng(-25.363882,131.044922);
   var mapOptions = {
-    zoom: 8,
-    center: latlng
-  }
-  map = new google.maps.Map(document.getElementById('map-canvas'), mapOptions);
-  directionsDisplay.setMap(map);
+    zoom: 16,
+    center: new google.maps.LatLng(0, -180),
+    mapTypeId: google.maps.MapTypeId.TERRAIN
+  };
+  map = new google.maps.Map(document.getElementById('map-canvas'),
+      mapOptions);
 }
 
 function setCurrentLocation() {
@@ -138,50 +139,38 @@ function handleNoGeolocation(errorFlag) {
 }
 
  function drawWayPoints() {
-	 var waypts = [];
-	 console.log("console"+ arrayObject.size);
-	 if (arrayObject.length > 1) {
-		  var objstart=arrayObject[0];
-		 var objend=arrayObject[arrayObject.length -1];
-		 var startA = new google.maps.LatLng(objstart.lat, objstart.longi);
-		 var endA = new google.maps.LatLng(objend.lat, objend.longi);
-		 for (var i = 1; i < arrayObject.length-1; i++) {
-			 var obj=arrayObject[i];
-			 var point = new google.maps.LatLng(objstart.lat, objstart.longi);
-			 waypts.push({
-		          location: point,
-		          stopover:true
-		      });
-		 }
 
-		 var request = {
-			      origin:startA,
-			      destination:endA,
-			      waypoints: waypts,
-			      travelMode: google.maps.TravelMode.DRIVING
-			  };
-		directionsService.route(request, function(response, status) {
-		if (status == google.maps.DirectionsStatus.OK) {
-			      directionsDisplay.setDirections(response);
-		}
-		
-	  }); 
-		 
-	 }  else {
-		 
-		   if (arrayObject.length == 1) {
 	 
-			 var obj = arrayObject[0];
-			 var initialLocation = new google.maps.LatLng(obj.lat,obj.longi);
-			 var marker = new google.maps.Marker({ 
-                 position: initialLocation,
-                 title:"My location",
-                 map:map});
- 				map.setCenter(initialLocation);
-		 } 
- 				//geocodeLatLng(lat, lng);
+	var flc = new Array();
 	 
-	}
+   for(var i = 0; i < arrayObject.length; i++) {
+	var a =  new google.maps.LatLng(arrayObject[i].lat, arrayObject[i].longi);
+        flc.push(a);
+   }
+      var initialLocation = new google.maps.LatLng(flc[0].lat(),flc[0].lng());
+      var marker = new google.maps.Marker({ 
+                        position: initialLocation,
+                        title:"My location",
+                        map:map}
+        );
+        map.setCenter(initialLocation);
+   console.log(flc.length);
+
+  var flightPlanCoordinates = [
+    new google.maps.LatLng(37.772323, -122.214897),
+    new google.maps.LatLng(21.291982, -157.821856),
+    new google.maps.LatLng(-18.142599, 178.431),
+    new google.maps.LatLng(-27.46758, 153.027892)
+  ];
+  var flightPath = new google.maps.Polyline({
+    path: flc,
+    geodesic: true,
+    strokeColor: '#FF0000',
+    strokeOpacity: 1.0,
+    strokeWeight: 2
+  });
+
+  flightPath.setMap(map);
 }
  
 
@@ -255,4 +244,3 @@ google.maps.event.addDomListener(window, 'load', initialize);
     <div id="map-canvas"></div>
   </body>
 </html>
-

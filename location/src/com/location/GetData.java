@@ -77,12 +77,14 @@ public class GetData extends HttpServlet {
 			        	i++;
 			        }
 			        response.setContentType("application/json");
+			        response.setHeader("Access-Control-Allow-Origin", "*");
 			        try {
 						mainObj.put("LatLong", array);
 					} catch (JSONException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
+			        System.out.println("value -----before senfing" + mainObj.toString());
 			        System.out.println(mainObj.toString());
 			        response.getWriter().write(mainObj.toString());
 			        

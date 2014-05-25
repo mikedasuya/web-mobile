@@ -69,9 +69,10 @@ public class ExampleService extends Service {
  			     }
  			    Message msg1 = new Message();
  				msg.arg1 = Common.STOP_TRACKING;
+ 				msg.arg2 = Common.ERROR_VALUE_NO_GEO;
  				msg.obj = getEmailFromPersistent();
  				mhandlerUICommands.sendMessage(msg);
- 				sendNotification(Common.NOTIFICATION_ID_NO_GEO, Common.ERROR_NO_GEO);
+ 				//sendNotification(Common.NOTIFICATION_ID_NO_GEO, Common.ERROR_NO_GEO);
  			    
  			    stopSelf();
  			    destroy();
@@ -95,14 +96,14 @@ public class ExampleService extends Service {
     				WorkerThread.getInstance(ExampleService.this, mhandler).start();
     				st.onEvent(Common.EVENT.EVENT_START_TRACKING);
     			    sendUI(Common.START_TRACKING);
-    			    showRunningNotification(Common.Service_RUNNING);
+    			    showRunningNotification(Common.Service_RUNNING, 0);
 	    		} else if (msg.arg1 == Common.STOP_TRACKING) {
 	    			removeNotification(Common.NOTIFICATION_ID_NO_DATA_CONNECTION);
 	    			removeNotification(Common.NOTIFICATION_ID_NO_GEO);
 	    			WorkerThread.getInstance(ExampleService.this, mhandler).stopRunning();
 	    			st.onEvent(Common.EVENT.EVENT_STOP_TRACKING);
 	    			sendUI(Common.STOP_TRACKING);
-	    			showRunningNotification(Common.Service_NOT_RUNNING);
+	    			showRunningNotification(Common.Service_NOT_RUNNING, msg.arg2);
 	    		}
 	    	}
 
@@ -118,33 +119,63 @@ public class ExampleService extends Service {
 			mNotificationManager.cancel(notificationIdNoDataConnection);
 		}
 		
-		private void showRunningNotification(int serviceRunning) {
+		private void showRunningNotification(int serviceRunning, int errorCode) {
 			// TODO Auto-generated method stub
-			NotificationManager mNotificationManager =
+			/*NotificationManager mNotificationManager =
 		    	    (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 			NotificationCompat.Builder mBuilder = null;
-			if (serviceRunning == Common.Service_RUNNING) {
-				 RemoteViews contentView = new RemoteViews(getPackageName(), R.layout.notification);
-			        contentView.setImageViewResource(R.id.image11, R.drawable.main);
-			        contentView.setTextViewText(R.id.title, "Location Tracker Running");			       
-				PendingIntent contentIntent = PendingIntent.getActivity(this, 0,
-			            new Intent(this, NewUILocation.class).setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP), 0);
-			
-		    	
-		    	android.support.v4.app.NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this);
-		        notificationBuilder.setAutoCancel(false);
-		        notificationBuilder.setSmallIcon(R.drawable.main);
-		        notificationBuilder.setContentTitle(" Location Tracker");
-		        notificationBuilder.setTicker("Location Tracker Running", contentView);
-		        Notification noti = notificationBuilder.build();
-		        noti.contentIntent = contentIntent;
-		        noti.contentView = contentView;
-		        mNotificationManager.notify(Common.Service_RUNNING, noti);
-		    	
-		    	
-			} else if (serviceRunning == Common.Service_NOT_RUNNING) {
-				mNotificationManager.cancel(Common.Service_RUNNING);
-			}
+			 RemoteViews contentView = new RemoteViews(getPackageName(), R.layout.notification);
+		        contentView.setImageViewResource(R.id.image11, R.drawable.main);
+		        
+		     if (serviceRunning == Common.Service_RUNNING) {   
+		        contentView.setTextViewText(R.id.title, "Location Tracker Running");
+		     } else if (serviceRunning == Common.Service_NOT_RUNNING ) {
+		    	 contentView.setTextViewText(R.id.title, "Location Tracker Not Running");
+		     } else if (serviceRunning == Common.Service_NOT_RUNNING && 
+		    		  errorCode == Common.Service_NOT_RUNNING) {
+		    	 contentView.setTextViewText(R.id.title, "Location Error Geo Not Found Restart");
+		     }
+		        
+		        
+			PendingIntent contentIntent = PendingIntent.getActivity(this, 0,
+		            new Intent(this, NewUILocation.class).setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP), 0);
+		
+	    	
+	    	android.support.v4.app.NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this);
+	        notificationBuilder.setAutoCancel(false);
+	        notificationBuilder.setSmallIcon(R.drawable.main);
+	        notificationBuilder.setContentTitle(" Location Tracker");
+	           Notification noti = notificationBuilder.build();
+	        noti.contentIntent = contentIntent;
+	        noti.contentView = contentView;
+	        mNotificationManager.notify(Common.Service_RUNNING, noti);*/
+	       String msg = null;
+	       PendingIntent contentIntent = PendingIntent.getActivity(this, 0,
+		            new Intent(this, NewUILocation.class).setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP), 0);
+	       // Creates an explicit intent for an Activity in your app
+	        if (serviceRunning == Common.Service_RUNNING) {   
+		        msg =  "Location Tracker Running";
+		     } else if (serviceRunning == Common.Service_NOT_RUNNING ) {
+		    	msg =  "Location Tracker Not Running";
+		     } else if (serviceRunning == Common.Service_NOT_RUNNING && 
+		    		  errorCode == Common.ERROR_VALUE_NO_GEO) {
+		    	 msg = "Location Error Geo Not Found Restart";
+		     }
+	        NotificationCompat.Builder mBuilder =
+	    	        new NotificationCompat.Builder(this)
+	    	        .setSmallIcon(R.drawable.main)
+	    	        .setContentTitle("Location Server Notification")
+	    	        .setContentIntent(contentIntent)
+	    	        .setContentText(msg);
+	        
+	    	
+	    	NotificationManager mNotificationManager =
+	    	    (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+	    	
+	    	// mId allows you to update the notification later on.
+	    	mNotificationManager.notify(Common.Service_RUNNING, mBuilder.build());
+	    	
+	    	
 		}
 		
 		private boolean setFrequence(int freq) {
@@ -309,7 +340,7 @@ public class ExampleService extends Service {
 		// TODO Auto-generated method stub
     	NotificationCompat.Builder mBuilder =
     	        new NotificationCompat.Builder(this)
-    	        .setSmallIcon(R.drawable.images)
+    	        .setSmallIcon(R.drawable.main)
     	        .setContentTitle("Location Server Notification")
     	        .setContentText(msg);
     	// Creates an explicit intent for an Activity in your app
@@ -376,9 +407,16 @@ public class ExampleService extends Service {
     private void destroy() {
     	
     }
+    
     @Override
     public void onDestroy() {
         // The service is no longer used and is being destroyed
+    	if (st.getCurrentState() ==  Common.STATE.STATE_TRACKING.getVal())  {
+    		WorkerThread.getInstance(ExampleService.this, mhandler).stopRunning();
+			st.onEvent(Common.EVENT.EVENT_STOP_TRACKING);
+			sendUI(Common.STOP_TRACKING);
+							       
+    	}
     	System.out.println("tracker ------------------ ---  destroy");
     	
     }

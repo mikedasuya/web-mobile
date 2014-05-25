@@ -63,7 +63,7 @@
 		    android:background="@drawable/save"
 		    android:gravity="center"
 		    android:textStyle="bold"
-	       	android:textSize="25sp"
+	       	android:textSize="20sp"
 	       	android:text="Save"
 		    />
     

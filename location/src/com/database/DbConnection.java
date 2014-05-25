@@ -85,16 +85,17 @@ public List<LangLat> getData(String emailid, String day, String
    //STEP 4: Execute a query
    System.out.println("Creating statement...");
    stmt = conn.createStatement();
-
+   System.out.println("Getting data email" + emailid + " "+day +" "+month+" "+year);
    String sql = "SELECT EMAIL, latitude, longitude FROM location_values where EMAIL = '"+emailid+"'"+
 		   		"and day ='"+day+"'"+"and month='"+month+"'"+"and year='"+year+"'";
    ResultSet rs = stmt.executeQuery(sql);
-
+   System.out.println("Getting data email -1");
    while(rs.next()){
        //Retrieve by column name
        String email  = rs.getString("EMAIL");
        String lat = rs.getString("latitude");
        String longi = rs.getString("longitude");
+       System.out.println("Getting data email -2");
        LangLat obj = new LangLat();
        obj.lat = lat;
        obj.longi = longi;
@@ -124,7 +125,7 @@ public List<LangLat> getData(String emailid, String day, String
       se.printStackTrace();
    }//end finally try
 }//end try
-    System.out.println("Goodbye!");
+    System.out.println("Goodbye! -----for getting datat");
     return list;
 }
 

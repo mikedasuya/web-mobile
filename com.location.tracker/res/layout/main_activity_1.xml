@@ -46,7 +46,7 @@
 	       android:layout_height="100dip"
 	       style="@style/myToggle"
 	       android:textStyle="bold"
-	       android:textSize="25sp"
+	       android:textSize="20sp"
 	       android:text="Start"
 	       android:layout_alignParentLeft="true"
 	       android:layout_alignParentTop="true"

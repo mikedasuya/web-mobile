@@ -411,12 +411,6 @@ public class ExampleService extends Service {
     @Override
     public void onDestroy() {
         // The service is no longer used and is being destroyed
-    	if (st.getCurrentState() ==  Common.STATE.STATE_TRACKING.getVal())  {
-    		WorkerThread.getInstance(ExampleService.this, mhandler).stopRunning();
-			st.onEvent(Common.EVENT.EVENT_STOP_TRACKING);
-			sendUI(Common.STOP_TRACKING);
-							       
-    	}
     	System.out.println("tracker ------------------ ---  destroy");
     	
     }

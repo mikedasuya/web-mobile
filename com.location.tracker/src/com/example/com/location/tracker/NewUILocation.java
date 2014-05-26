@@ -52,7 +52,7 @@ protected void onCreate(Bundle savedInstanceState) {
     Intent in = new Intent(this, ExampleService.class);
 	addListeners();
 	cb = new CallBack();
-	//startService(in);
+	startService(in);
 	bindService(in, connectionService, Context.BIND_AUTO_CREATE);
 	Log.i("MY", "FINISHED OnCreate");
 	

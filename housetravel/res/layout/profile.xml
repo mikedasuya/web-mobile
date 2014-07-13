@@ -11,19 +11,19 @@
     android:layout_height="wrap_content"
     android:orientation="horizontal">
     
-    <Button android:layout_width="fill_parent"
+    <TextView android:layout_width="fill_parent"
         android:layout_height="40dip"
-        android:text="CreateProfile"
-        android:id="@+id/csnapshot"
+        android:text="Agent Name"
+        android:id="@+id/agentname"
         android:layout_weight="1">
-        </Button>
+        </TextView>
         
-    <Button android:layout_width="fill_parent"
+    <EditText android:layout_width="fill_parent"
         android:layout_height="40dip"
-        android:text="SearchHistory"
-        android:id="@+id/shistory"
+        android:hint="AgentName"
+        android:id="@+id/textAgentName"
         android:layout_weight="1">
-    </Button>
+    </EditText>
     
 </LinearLayout>
 
@@ -31,20 +31,82 @@
     android:layout_height="wrap_content"
     android:orientation="horizontal">
     
+    <TextView android:layout_width="fill_parent"
+        android:layout_height="40dip"
+        android:text="House Area"
+        android:id="@+id/textarea"
+        android:layout_weight="1">
+        </TextView>
+        
+    <EditText android:layout_width="fill_parent"
+        android:layout_height="40dip"
+        android:hint="1100"
+        android:id="@+id/harea"
+        android:inputType="number"
+        android:layout_weight="1">
+    </EditText>
+    
+</LinearLayout>
+<LinearLayout android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal">
+    
+    <TextView android:layout_width="fill_parent"
+        android:layout_height="40dip"
+        android:text="Price"
+        android:id="@+id/Price"
+        android:layout_weight="1">
+        </TextView>
+        
+    <EditText android:layout_width="fill_parent"
+        android:layout_height="40dip"
+        android:hint="1000 USD"
+        android:id="@+id/price"
+        android:inputType="number"
+        android:layout_weight="1">
+    </EditText>
+    
+</LinearLayout>
+
+<LinearLayout
+    android:layout_width="fill_parent"
+    android:layout_height="278dp"
+    android:orientation="vertical" >
+    
+    <EditText
+        android:id="@+id/Notes"
+        android:layout_width="fill_parent"
+        android:layout_height="272dp"
+        android:hint="Notes" >
+
+    </EditText>
+    
+</LinearLayout>
+<LinearLayout android:layout_width="fill_parent"
+    android:layout_height="wrap_content">
     <Button android:layout_width="fill_parent"
         android:layout_height="40dip"
-        android:text="CreateProfile"
+        android:text="Save"
         android:id="@+id/snearby"
         android:layout_weight="1">
-     </Button>
         
-    <Button android:layout_width="fill_parent"
-        android:layout_height="40dip"
-        android:text="SearchHistory"
-        android:id="@+id/sync"
-        android:layout_weight="1">
     </Button>
     
+    <Button android:layout_width="fill_parent"
+        android:layout_height="40dip"
+        android:text="AddPic"
+        android:id="@+id/AddPic"
+        android:layout_weight="1">
+        
+    </Button>
+    
+    <Button android:layout_width="fill_parent"
+        android:layout_height="40dip"
+        android:text="AddVideo"
+        android:id="@+id/AddVideo"
+        android:layout_weight="1">
+       
+    </Button>
 </LinearLayout>
     
 </LinearLayout>

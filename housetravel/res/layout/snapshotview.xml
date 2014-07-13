@@ -25,14 +25,14 @@
     <Button android:layout_width="fill_parent"
         android:layout_height="40dip"
         android:text="CreateProfile"
-        android:id="@+id/csnapshot"
+        android:id="@+id/bsnapshot"
         android:layout_weight="1">
         </Button>
         
     <Button android:layout_width="fill_parent"
         android:layout_height="40dip"
         android:text="SearchHistory"
-        android:id="@+id/shistory"
+        android:id="@+id/bhistory"
         android:layout_weight="1">
     </Button>
     
@@ -44,15 +44,15 @@
     
     <Button android:layout_width="fill_parent"
         android:layout_height="40dip"
-        android:text="CreateProfile"
-        android:id="@+id/snearby"
+        android:text="CreateProfileBack"
+        android:id="@+id/bprofilebackup"
         android:layout_weight="1">
      </Button>
         
     <Button android:layout_width="fill_parent"
         android:layout_height="40dip"
         android:text="SearchHistory"
-        android:id="@+id/sync"
+        android:id="@+id/bsync"
         android:layout_weight="1">
     </Button>
     

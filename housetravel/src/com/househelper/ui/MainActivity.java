@@ -1,12 +1,16 @@
 
 package com.househelper.ui;
 
+import com.househelper.interfaces.ClickListenerInterface;
+import com.househelper.profile.ProfileFragment;
+
 import android.app.ActionBar;
 import android.app.Fragment;
+import android.app.FragmentTransaction;
 import android.os.Bundle;
 import android.app.Activity;
  
-public class MainActivity extends Activity {
+public class MainActivity extends Activity implements ClickListenerInterface {
     // Declare Tab Variable
     ActionBar.Tab Tab1, Tab2;
     Fragment fragmentsnapshot = new SnapshotFragment();
@@ -43,4 +47,21 @@ public class MainActivity extends Activity {
         actionBar.addTab(Tab2);
         //actionBar.addTab(Tab3);
     }
+
+	@Override
+	public void onClick(int id) {
+		// TODO Auto-generated method stub
+		if (id == R.id.bsnapshot) {
+			 ProfileFragment newFragment = new ProfileFragment();
+			 	FragmentTransaction transaction = MainActivity.this.getFragmentManager().beginTransaction();
+	            // Replace whatever is in the fragment_container view with this fragment,
+	            // and add the transaction to the back stack so the user can navigate back
+	            transaction.replace(R.id.fragment_container, newFragment);
+	            transaction.addToBackStack(null);
+	            // Commit the transaction
+	            transaction.commit();
+
+		}
+				
+	}
 }

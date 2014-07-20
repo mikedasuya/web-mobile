@@ -19,6 +19,7 @@ public class SnapshotFragment extends Fragment {
 	private GoogleMap mMap;
 	Button profileButton;
 	ClickListenerInterface mCallBack = null;
+	Activity act = null;
 	
 	@Override
     public void onAttach(Activity activity) {
@@ -32,6 +33,7 @@ public class SnapshotFragment extends Fragment {
             throw new ClassCastException(activity.toString()
                     + " must implement OnHeadlineSelectedListener");
         }
+        act = activity;
     }
 
 	
@@ -50,5 +52,16 @@ public class SnapshotFragment extends Fragment {
 		 	mCallBack.onClick(v.getId());
 		 }
 	};
+	
+	@Override
+	public void onDestroyView() {
+	    super.onDestroyView();
+	    Fragment fragment = act.getFragmentManager().findFragmentById(R.id.map);
+	    if (fragment != null)
+	        getFragmentManager().beginTransaction().remove(fragment).commit();
+	}
+	
+	
+	  
 		
 }

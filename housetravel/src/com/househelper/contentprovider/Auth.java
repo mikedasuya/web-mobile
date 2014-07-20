@@ -15,6 +15,11 @@ public class Auth {
 	public static final Uri CONTENT_URI = 
 	      Uri.parse("content://" + AUTHORITY);
 	
+	public static final Uri CONTENT_URI_TABLE = 
+	         Uri.withAppendedPath(
+	               Auth.CONTENT_URI,
+	               "items");
+	
 	/**
 	 * Constants for the Items table 
 	 * of the lentitems provider.
@@ -27,6 +32,8 @@ public class Auth {
 		public static final String COL_PRICE = "Price";
 		public static final String COL_NOTES = "Notes";
 		public static final String COL_SYNCED = "SyncStatus";
+		public static final String COL_ID = "_id";
+		public static final String COL_FOLDERNAME = "foldername";
 		
 	}
 	

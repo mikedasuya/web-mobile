@@ -87,7 +87,7 @@
     <Button android:layout_width="fill_parent"
         android:layout_height="40dip"
         android:text="Save"
-        android:id="@+id/snearby"
+        android:id="@+id/save"
         android:layout_weight="1">
         
     </Button>

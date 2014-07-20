@@ -20,8 +20,13 @@ public class MainActivity extends Activity implements ClickListenerInterface {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.main);
- 
+        setTabs();
+        //actionBar.addTab(Tab3);
+    }
+    
+    void setTabs() {
+    	setContentView(R.layout.main);
+    	 
         ActionBar actionBar = getActionBar();
  
         // Hide Actionbar Icon
@@ -45,7 +50,6 @@ public class MainActivity extends Activity implements ClickListenerInterface {
         // Add tabs to actionbar
         actionBar.addTab(Tab1);
         actionBar.addTab(Tab2);
-        //actionBar.addTab(Tab3);
     }
 
 	@Override
@@ -62,6 +66,16 @@ public class MainActivity extends Activity implements ClickListenerInterface {
 	            transaction.commit();
 
 		}
-				
+			
+	} //onClick
+	
+	@Override
+	public void onBackPressed()
+	{
+		getFragmentManager().popBackStack();
+		
+		
 	}
+	
+	
 }

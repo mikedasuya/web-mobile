@@ -7,9 +7,9 @@ import android.database.sqlite.SQLiteOpenHelper;
 
 public class DbHelper extends SQLiteOpenHelper {
 	
-	   static final String DATABASE_NAME = "records";
-	   static final String TABLE_NAME = "items";
-	   static final int DATABASE_VERSION = 1;
+	   public static final String DATABASE_NAME = "records";
+	   public static final String TABLE_NAME = "items";
+	   public static final int DATABASE_VERSION = 1;
 	   static final String CREATE_DB_TABLE = 
 	      " CREATE TABLE " + TABLE_NAME +
 	      " (_id INTEGER PRIMARY KEY AUTOINCREMENT, " + 
@@ -18,6 +18,7 @@ public class DbHelper extends SQLiteOpenHelper {
 	      Auth.ItemsColumn.COL_HOUSE_AREA +"  INTEGER NOT NULL," +
 	      Auth.ItemsColumn.COL_PRICE + "  INTEGER NOT NULL," +
 	      Auth.ItemsColumn.COL_NOTES + " TEXT,"+
+	      Auth.ItemsColumn.COL_FOLDERNAME + " TEXT," +
 	      Auth.ItemsColumn.COL_SYNCED + "  INTGER NOT NULL);";
 	   
 	   

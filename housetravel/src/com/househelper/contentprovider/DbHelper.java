@@ -19,6 +19,8 @@ public class DbHelper extends SQLiteOpenHelper {
 	      Auth.ItemsColumn.COL_PRICE + "  INTEGER NOT NULL," +
 	      Auth.ItemsColumn.COL_NOTES + " TEXT,"+
 	      Auth.ItemsColumn.COL_FOLDERNAME + " TEXT," +
+	      Auth.ItemsColumn.COL_LAT + " DOUBLE," +
+	      Auth.ItemsColumn.COL_LONG + " DOUBLE," +
 	      Auth.ItemsColumn.COL_SYNCED + "  INTGER NOT NULL);";
 	   
 	   

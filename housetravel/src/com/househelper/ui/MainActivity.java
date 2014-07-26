@@ -69,13 +69,6 @@ public class MainActivity extends Activity implements ClickListenerInterface {
 			
 	} //onClick
 	
-	@Override
-	public void onBackPressed()
-	{
-		getFragmentManager().popBackStack();
 		
-		
-	}
-	
 	
 }

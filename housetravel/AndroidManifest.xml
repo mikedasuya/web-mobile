@@ -68,6 +68,12 @@
       <provider android:name="com.househelper.contentprovider.StoreContentProvider" 
            android:authorities="com.househelper.contentprovier">
         </provider>
+        
+      <service
+  			android:name="com.househelper.service.UploadService"
+  			android:label="@string/service_name"
+  >
+</service> 
     </application>
     
 </manifest>

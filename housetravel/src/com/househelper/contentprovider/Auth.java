@@ -34,6 +34,8 @@ public class Auth {
 		public static final String COL_SYNCED = "SyncStatus";
 		public static final String COL_ID = "_id";
 		public static final String COL_FOLDERNAME = "foldername";
+		public static final String COL_LAT = "latitude";
+		public static final String COL_LONG = "longitude";
 		
 	}
 	

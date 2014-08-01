@@ -2,5 +2,7 @@
 
     <string name="app_name">HouseHelper</string>
     <string name="service_name">Service</string>
+     <string name="username">Service</string>
+      <string name="password">Service</string>
 
 </resources>

@@ -11,17 +11,23 @@ import com.househelper.common.HouseConstants;
 import com.househelper.contentprovider.Auth;
 import com.househelper.contentprovier.test.testDb;
 import com.househelper.getLocation.LocationTracker;
+import com.househelper.service.ICallBack;
+import com.househelper.service.UploadService;
 import com.househelper.ui.R;
 
 import android.app.Activity;
 import android.app.Application;
 import android.app.Fragment;
+import android.content.ComponentName;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.IBinder;
+import android.os.RemoteException;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -59,6 +65,8 @@ public class ProfileFragment extends Fragment {
 	LocationTracker tracker = null;
 	public static final int MEDIA_TYPE_IMAGE = 1;
 	public static final int MEDIA_TYPE_VIDEO = 2;
+	Uri finalMediaUri = null;
+	
 	
 	@Override
 	public void onAttach(Activity activity) {
@@ -84,6 +92,7 @@ public class ProfileFragment extends Fragment {
         addVideo.setOnClickListener(buttonListener);
         addPic.setClickable(false);
         addVideo.setClickable(false);
+       
         return rootView;
 	}
     
@@ -105,14 +114,14 @@ public class ProfileFragment extends Fragment {
 	    			testdb1.getData();
 	    			testdb1.updateData();
 */	    		} else if (v.getId() == R.id.AddPic) {
-					Uri finalPicUri = getOutputMediaFileUri(MEDIA_TYPE_IMAGE);
+					finalMediaUri = getOutputMediaFileUri(MEDIA_TYPE_IMAGE);
 					Intent camera = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
-					camera.putExtra(MediaStore.EXTRA_OUTPUT, finalPicUri);
+					camera.putExtra(MediaStore.EXTRA_OUTPUT, finalMediaUri);
 					startActivityForResult(camera, HouseConstants.PIC_INTENT);
 				} else if (v.getId() == R.id.AddVideo) {
-					Uri finalPicUri = getOutputMediaFileUri(MEDIA_TYPE_VIDEO);
+					finalMediaUri = getOutputMediaFileUri(MEDIA_TYPE_VIDEO);
 					 Intent camera = new Intent(MediaStore.ACTION_VIDEO_CAPTURE);
-					camera.putExtra(MediaStore.EXTRA_OUTPUT, finalPicUri);
+					camera.putExtra(MediaStore.EXTRA_OUTPUT, finalMediaUri);
 					startActivityForResult(camera, HouseConstants.VIDEO_INTENT);
 				}
 	    	
@@ -154,10 +163,10 @@ public class ProfileFragment extends Fragment {
 	        File mediaFile;
 	        if (type == MEDIA_TYPE_IMAGE) {
 	            mediaFile = new File(mediaStorageDir.getPath() + File.separator
-	                    + "IMG_" + timeStamp + ".jpg");
+	                    + folderName+"/"+"IMG_" + timeStamp + ".jpg");
 	        } else if (type == MEDIA_TYPE_VIDEO) {
 	            mediaFile = new File(mediaStorageDir.getPath() + File.separator
-	                    + "VID_" + timeStamp + ".mp4");
+	                    +folderName+ "/"+ "VID_" + timeStamp + ".mp4");
 	        } else {
 	            return null;
 	        }
@@ -262,8 +271,28 @@ public class ProfileFragment extends Fragment {
 	
 	private void sendSyncRequest() {
 		// TODO Auto-generated method stub
+		//  int uploadFilePath(in String url, in String folderName, in String file, in ICallBack cb );
+	}
+	
+	private class CallBack implements ICallBack {
+
+		
+		@Override
+		public int uploadRequest(long requestId, String file, int progress)
+				throws RemoteException {
+			// TODO Auto-generated method stub
+			return 0;
+		}
+
+		@Override
+		public IBinder asBinder() {
+			// TODO Auto-generated method stub
+			return null;
+		}
 		
 	}
+	
+	
 	
 	
 }

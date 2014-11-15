@@ -16,16 +16,13 @@ import com.owncloud.android.lib.common.operations.RemoteOperationResult;
 public class FileUploadRequestHandler implements OnRemoteOperationListener, OnDatatransferProgressListener {
 	
 	private static final String LOG_TAG = "FileUploadRequestHandler";
-	ICallBack callBack;
-	String fileName;
 	long requestId;
-	Handler mServiceCallBack;
-	public FileUploadRequestHandler(ICallBack cbl, String file, long request, Handler serviceCallBack) {
+	Handler mHandler;
+	
+	public FileUploadRequestHandler(long request, Handler mFileUploadRequest) {
 		// TODO Auto-generated constructor stub
-		callBack = cbl;
-		fileName = file;
 		requestId = request;
-		mServiceCallBack = serviceCallBack;
+		mHandler = mFileUploadRequest;
 	}
 
 	@Override
@@ -42,7 +39,7 @@ public class FileUploadRequestHandler implements OnRemoteOperationListener, OnDa
 		Bundle bundle = new Bundle();
 		bundle.putLong(HouseConstants.REQUEST_ID_STRIND, requestId);
 		msg.setData(bundle);
-		mServiceCallBack.sendMessage(msg);
+		mHandler.sendMessage(msg);
 		
 	}
 
@@ -57,25 +54,15 @@ public class FileUploadRequestHandler implements OnRemoteOperationListener, OnDa
 			Bundle bundle = new Bundle();
 			bundle.putLong(HouseConstants.REQUEST_ID_STRIND, requestId);
 			msg.setData(bundle);
-			mServiceCallBack.sendMessage(msg);
-			try {
-				callBack.uploadRequest(requestId, fileName, HouseConstants.OPERATION_FILE_UPLOAD_SUCCESS);
-			} catch (RemoteException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+			mHandler.sendMessage(msg);
+			
 		} else {
 			msg.arg1 = HouseConstants.OPERATION_FILE_UPLOAD_FAILURE;
 			Bundle bundle = new Bundle();
 			bundle.putLong(HouseConstants.REQUEST_ID_STRIND, requestId);
 			msg.setData(bundle);
-			mServiceCallBack.sendMessage(msg);
-			try {
-				callBack.uploadRequest(requestId, fileName, HouseConstants.OPERATION_FILE_UPLOAD_FAILURE);
-			} catch (RemoteException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+			mHandler.sendMessage(msg);
+			
 		}
 		
 	}

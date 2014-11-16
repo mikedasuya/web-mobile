@@ -76,28 +76,28 @@ public class FileUploadRequest implements Request {
 	@Override
 	public String getUrl() {
 		// TODO Auto-generated method stub
-		return null;
+		return mUrl;
 	}
 
 
 	@Override
 	public String getFolderName() {
 		// TODO Auto-generated method stub
-		return null;
+		return mFolderName;
 	}
 
 
 	@Override
 	public String getFileName() {
 		// TODO Auto-generated method stub
-		return null;
+		return mFileName;
 	}
 
 
 	@Override
 	public ICallBack getCallBack() {
 		// TODO Auto-generated method stub
-		return null;
+		return mCallBackCaller;
 	}
 	@Override
 	public void setCallBackHandler(Handler mhandler) {

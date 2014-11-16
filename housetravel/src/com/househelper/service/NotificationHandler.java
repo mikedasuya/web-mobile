@@ -14,36 +14,29 @@ import android.os.Bundle;
 import android.support.v4.app.NotificationCompat;
 
 public class NotificationHandler {
-	int notificationId = 0;
+
 	NotificationManager mNotifyManager = null;
-	Notification.Builder notificationBuilder = null;
+	
 	Context mContext;
+	int mRequestId = 0;
+	int mOperation = 0;
+	
 	@SuppressLint("NewApi")
 	NotificationHandler(Context cont) {
 			mContext = cont;
+			mNotifyManager =
+			        (NotificationManager) mContext.getSystemService(Context.NOTIFICATION_SERVICE);
 	}
 	
-	@TargetApi(Build.VERSION_CODES.JELLY_BEAN)
-	@SuppressLint("NewApi")
-	void updateProgress(int progress) {
-		notificationBuilder.setProgress(100,progress, false);
-		Notification notification = notificationBuilder.build();
-		mNotifyManager.notify(notificationId, notification);
-	}
 	
-	@TargetApi(Build.VERSION_CODES.JELLY_BEAN)
-	void updateNotificationMessage(String message) {
-		notificationBuilder.setContentText(message);
-		Notification notification = notificationBuilder.build();
-		mNotifyManager.notify(notificationId, notification);
-		
-	}
 	
 	void deleteNotification() {
-		mNotifyManager.cancel(notificationId);
+	//	mNotifyManager.cancel(notificationId);
 	}
 	
 	void handleMessage(NotificationObject obj) {
+		
+		
 		/*
 		notificationId = obj.getId();
 		mNotifyManager =
@@ -78,6 +71,43 @@ public class NotificationHandler {
 		   }*/
 			
 	  }
+
+	@SuppressLint("NewApi")
+	public void handleObject(NotificationObject obj) {
+		// TODO Auto-generated method stub
+		int operation = obj.getOperation();
+		int request = obj.getRequestId();
+		
+		
+		if (operation == HouseConstants.OPERATION_FILE_UPLOAD_START) {
+			
+			Notification.Builder notificationBuilder = new Notification.Builder(mContext);
+			notificationBuilder.setOngoing(true)
+			                   .setContentTitle("Upload Image")
+			                   .setContentText("Uploading Image ...")
+			                   .setProgress(100, 0, false);
+			Notification notification = notificationBuilder.build();
+			mNotifyManager.notify(request, notification);
+		} else if (operation == HouseConstants.OPERATION_FILE_UPLOAD_SUCCESS) {
+			Notification.Builder notificationBuilder = new Notification.Builder(mContext);
+			notificationBuilder.setContentText(HouseConstants.OPERATION_FILE_UPLOAD_SUCCESS_STRING);
+			Notification notification = notificationBuilder.build();
+			mNotifyManager.notify(request, notification);
+		} else if (operation == HouseConstants.OPERATION_FILE_UPLOAD_INPROGRESS) {
+			Notification.Builder notificationBuilder = new Notification.Builder(mContext);
+			notificationBuilder.setProgress(100, obj.getProgress(), false);
+			Notification notification = notificationBuilder.build();
+			mNotifyManager.notify(request, notification);
+		} else if (operation == HouseConstants.OPERATION_FILE_UPLOAD_FAILURE) {
+			Notification.Builder notificationBuilder = new Notification.Builder(mContext);
+			notificationBuilder.setContentText(HouseConstants.OPERATION_FILE_UPLOAD_ERROR_STRING);
+			Notification notification = notificationBuilder.build();
+			mNotifyManager.notify(request, notification);
+		}
+		
+		
+		
+	}
 	
 	
 }

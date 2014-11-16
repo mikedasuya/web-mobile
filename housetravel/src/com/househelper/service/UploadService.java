@@ -9,7 +9,10 @@ import com.househelper.common.HouseConstants;
 import com.househelper.service.data.NotificationObject;
 
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
@@ -35,25 +38,37 @@ public class UploadService extends Service {
 			  NotificationObject obj = new NotificationObject();
 			  obj.setId((Integer) data.get(HouseConstants.REQUEST_ID_STRIND));
 			  obj.setOperation(HouseConstants.OPERATION_FILE_UPLOAD_SUCCESS);
+			  notificationManager.handleObject(obj);
 			 			 
 		  } else if (msg.arg1 == HouseConstants.OPERATION_FILE_UPLOAD_INPROGRESS) {
 			  Bundle data = msg.getData();
 			  NotificationObject obj = new NotificationObject();
 			  obj.setId((Integer) data.get(HouseConstants.REQUEST_ID_STRIND));
 			  obj.setOperation(HouseConstants.OPERATION_FILE_UPLOAD_SUCCESS);
+			  obj.setProgress(msg.arg2);
+			  notificationManager.handleObject(obj);
 			  
 		  } else if (msg.arg1 == HouseConstants.OPERATION_FILE_UPLOAD_FAILURE) {
 			  Bundle data = msg.getData();
 			  NotificationObject obj = new NotificationObject();
 			  obj.setId((Integer) data.get(HouseConstants.REQUEST_ID_STRIND));
 			  obj.setOperation(HouseConstants.OPERATION_FILE_UPLOAD_SUCCESS);
+			  notificationManager.handleObject(obj);
 			  			  
 		  } else if (msg.arg1 == HouseConstants.OPERATION_FILE_UPLOAD_START) {
 			  Bundle data = msg.getData();
 			  NotificationObject obj = new NotificationObject();
 			  obj.setId((Integer) data.get(HouseConstants.REQUEST_ID_STRIND));
 			  obj.setOperation(HouseConstants.OPERATION_FILE_UPLOAD_SUCCESS);
+			  notificationManager.handleObject(obj);
 			  
+			  
+		  } else if (msg.arg1 == HouseConstants.OPERATION_FILE_UPLOAD_DATA_CONNECTIVITY_ERROR) {
+			  Bundle data = msg.getData();
+			  NotificationObject obj = new NotificationObject();
+			  obj.setId((Integer) data.get(HouseConstants.REQUEST_ID_STRIND));
+			  obj.setOperation(HouseConstants.OPERATION_FILE_UPLOAD_DATA_CONNECTIVITY_ERROR);
+			  notificationManager.handleObject(obj);
 			  
 		  }
 		  
@@ -109,17 +124,45 @@ public long randInt(int min, int max) {
     return randomNum;
 }
 
-private void sendStartUploadFile() {
+
+
+private boolean checkDataConnection() {
+	// TODO Auto-generated method stub
+
+	NetworkInfo info = (NetworkInfo) ((ConnectivityManager) this
+            .getSystemService(Context.CONNECTIVITY_SERVICE)).getActiveNetworkInfo();
+
+    if (info == null || !info.isConnected()) {
+        return false;
+    }
+    if (info.isRoaming()) {
+        // here is the roaming option you can change it if you want to
+        // disable internet while roaming, just return false
+        return false;
+    }
+    return true;
+
+}
+
+private void sendStartUploadFileMessage(long id) {
 	// TODO Auto-generated method stub
 	Message msg = new Message();
 	msg.arg1 = HouseConstants.OPERATION_FILE_UPLOAD_START;
+	Bundle bund = new Bundle();
+	bund.putLong(HouseConstants.REQUEST_ID_STRIND, id);
+	msg.setData(bund);
 	mHandler.sendMessage(msg);
 	
 }
 
-private boolean checkDataConnection() {
+private void sendDataConnectivityErrorNotification(long id) {
 	// TODO Auto-generated method stub
-	return false;
+	Message msg = new Message();
+	msg.arg1 = HouseConstants.OPERATION_FILE_UPLOAD_DATA_CONNECTIVITY_ERROR;
+	Bundle bund = new Bundle();
+	bund.putLong(HouseConstants.REQUEST_ID_STRIND, id);
+	msg.setData(bund);
+	mHandler.sendMessage(msg);
 }
 
 private final IUploadRequest.Stub mBinder = new IUploadRequest.Stub() {
@@ -130,11 +173,12 @@ private final IUploadRequest.Stub mBinder = new IUploadRequest.Stub() {
 			throws RemoteException {
 		// TODO Auto-generated method stub
 		int result = 0;
+		long Id = 0;
 		if (url == null || folderName == null || file == null || cb == null) {
 			result = -1 ;
 		} else {
 			if (checkDataConnection()) {
-				long Id = randInt(0, 100); 
+				Id = randInt(0, 100); 
 				Request req = new FileUploadRequest(url,
 														cb,
 														folderName, 
@@ -144,6 +188,7 @@ private final IUploadRequest.Stub mBinder = new IUploadRequest.Stub() {
 														);
 			//check for duplicate entry
 				mapRequestId.put(Id, req);
+				sendStartUploadFileMessage(Id);
 			
 				try {
 					queue.put(req);
@@ -155,13 +200,19 @@ private final IUploadRequest.Stub mBinder = new IUploadRequest.Stub() {
 				}
 			}  else {
 			//check data connection
-			result = HouseConstants.OPERATION_FILE_UPLOAD_DATA_CONNECTIVITY_ERROR;
+				result = HouseConstants.OPERATION_FILE_UPLOAD_DATA_CONNECTIVITY_ERROR;
+				sendDataConnectivityErrorNotification(Id);
+			
 			}
 		}  // if some thing is null
 		return result;
 	}
 	
 	
+
+	
+
+
 
 	@Override
 	public int uploadEntry(String url, int id, ICallBack cb)

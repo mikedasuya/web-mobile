@@ -4,8 +4,21 @@
     android:versionName="1.0" >
 
     <uses-sdk
-        android:minSdkVersion="12"
+        android:minSdkVersion="13"
         android:targetSdkVersion="17" />
+    <uses-feature
+        android:glEsVersion="0x00020000"
+        android:required="true"/>
+    
+    <uses-permission android:name="android.permission.INTERNET"/>
+	  <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+      <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+       <!-- The following two permissions are not required to use
+     Google Maps Android API v2, but are recommended. -->
+     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+    <uses-permission android:name="android.permission.INTERNET" />
+	<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
     <application
         android:allowBackup="true"
@@ -23,14 +36,44 @@
         </activity>
          
         <!--  Songs Activity -->
-        <activity android:name=".HistoryActivity" />
+        <activity android:name=".HistoryFragment" />
          
         <!--  Videos Activity -->
-        <activity android:name=".SnapshotActivity" />
+        <activity android:name=".SnapshotFragment" />
+        
+        <activity android:name="com.dropbox.sync.android.DbxAuthActivity" />
+<activity
+  android:name="com.dropbox.client2.android.AuthActivity"
+  android:launchMode="singleTask" >
+  <intent-filter>
+    <data android:scheme="db-APP_KEY" />
+    <action android:name="android.intent.action.VIEW" />
+    <category android:name="android.intent.category.BROWSABLE" />
+    <category android:name="android.intent.category.DEFAULT" />
+  </intent-filter>
+</activity>
+<service
+  android:name="com.dropbox.sync.android.DbxSyncService"
+  android:enabled="true"
+  android:exported="false"
+  android:label="Dropbox Sync" />
          
         <!--  Photos Activity -->
-       <meta-data android:name="com.google.android.gms.version"
-           android:value="@integer/google_play_services_version" /> 
+      <meta-data
+   			 android:name="com.google.android.gms.version"
+    		android:value="@integer/google_play_services_version" />
+      <meta-data
+    		android:name="com.google.android.maps.v2.API_KEY"
+    		android:value="AIzaSyBToyFE1bQk4spu6YdTKZD7rVzcp_J5uEc"/>
+      <provider android:name="com.househelper.contentprovider.StoreContentProvider" 
+           android:authorities="com.househelper.contentprovier">
+        </provider>
+        
+      <service
+  			android:name="com.househelper.service.UploadService"
+  			android:label="@string/service_name"
+  >
+</service> 
     </application>
-
+    
 </manifest>

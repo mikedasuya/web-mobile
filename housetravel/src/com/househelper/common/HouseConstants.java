@@ -14,6 +14,7 @@ public class HouseConstants {
 	public static final int OPERATION_FILE_UPLOAD_DATA_CONNECTIVITY_ERROR = 504;
 	public static final int OPERATION_FILE_UPLOAD_INTERNAL_ERROR = 505;
 	public static final String OPERATION_FILE_UPLOAD_SUCCESS_STRING = "Successfully Uploaded";
+	public static final String OPERATION_FILE_UPLOAD_DATA_CONNECTIVITY_ERROR_STRING = "Error Uploading check data connection";
 	public static int NOT_SYNC = 0;
 	public static int SYNC = 1;
 	

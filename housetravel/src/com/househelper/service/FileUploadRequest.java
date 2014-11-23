@@ -17,67 +17,63 @@ import com.owncloud.android.lib.common.accounts.AccountUtils;
 import com.owncloud.android.lib.resources.files.FileUtils;
 import com.owncloud.android.lib.resources.files.UploadRemoteFileOperation;
 
+import com.dropbox.sync.android.*;
+
 
 public class FileUploadRequest implements Request {
-	String mUrl = null;
+	
 	ICallBack mCallBackCaller;
 	String mFileName = null;
-	private OwnCloudClient mClient;
-	Context context;
-	Uri serverUri = Uri.parse(context.getString(R.string.server_base_url) + AccountUtils.WEBDAV_PATH_4_0);
-	String usern = context.getString(R.string.username);
-	String passw = context.getString(R.string.username);
-	FileUploadRequestHandler mfileUploadCallBack;
 	String mFolderName;
-	Handler mhandlerOperationListener;
-	int type = HouseConstants.FILE_UPLOAD;
-	Handler mHandler;  ///todo use unknown check it
-	Handler mCallBackHandler = null;
+	int id;
 	
-	public int getType() {
-		return type;
-	}
+		
+	//private DropboxAPI<AndroidAuthSession> mDBApi;
+	private DbxAccountManager mDbxAcctMgr;
 	
-	Handler mHandlerFromHandlerOperationListener = new Handler() {
+	
+	
+	Handler mResultCallBackHandler = new Handler() {
 		  public void 	handleMessage(Message msg) {
-			  mCallBackHandler.sendMessage(msg);
+			  
 		  }
     };
 	
-	FileUploadRequest(String ur, 
+	FileUploadRequest(DbxAccountManager dropbox, 
 			ICallBack cb,
 			String folder, 
-			String fName, Context cont , long requestId) {
-		mUrl = ur;
+			String fName, long requestId) {
+		
 		mCallBackCaller = cb;
-		context = cont;
 		mFileName = fName;
 		mFolderName = folder;
-		mClient.setBasicCredentials(usern, passw);
-		mfileUploadCallBack = new FileUploadRequestHandler(requestId, mHandlerFromHandlerOperationListener);
-		mClient = OwnCloudClientFactory.createOwnCloudClient(serverUri, context, true);
-		mHandler = new Handler();
+		mDbxAcctMgr = dropbox;
+		
 		
 	}
 	//FileUploadRunnbale
 	@Override
 	public void run() {
+		
+		addToDropBox();
 		// TODO Auto-generated method stub
-		File upFolder = new File(mFolderName);
+		/*File upFolder = new File(mFolderName);
     	File fileToUpload = new File(upFolder + mFolderName + "/" + mFileName); 
     	String remotePath = FileUtils.PATH_SEPARATOR + mFolderName + fileToUpload.getName(); 
     	String mimeType = context.getString(R.string.sample_file_mimetype);
     	UploadRemoteFileOperation uploadOperation = new UploadRemoteFileOperation(fileToUpload.getAbsolutePath(), remotePath, mimeType);
     	uploadOperation.addDatatransferProgressListener(mfileUploadCallBack);
-    	uploadOperation.execute(mClient, mfileUploadCallBack, mHandler);
+    	uploadOperation.execute(mClient, mfileUploadCallBack, mHandler);*/
 	}
 
 
-	@Override
-	public String getUrl() {
+	private void addToDropBox() {
 		// TODO Auto-generated method stub
-		return mUrl;
+		
 	}
+	
+	
+	
 
 
 	@Override
@@ -94,15 +90,12 @@ public class FileUploadRequest implements Request {
 	}
 
 
-	@Override
-	public ICallBack getCallBack() {
-		// TODO Auto-generated method stub
-		return mCallBackCaller;
-	}
+		
 	@Override
 	public void setCallBackHandler(Handler mhandler) {
 		// TODO Auto-generated method stub
-		mCallBackHandler = mHandler;
+		mResultCallBackHandler = mhandler;
 	}
 	
+		
 }

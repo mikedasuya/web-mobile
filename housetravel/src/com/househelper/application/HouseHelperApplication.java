@@ -3,6 +3,7 @@
 
 package com.househelper.application;
 
+import com.dropbox.sync.android.DbxAccountManager;
 import com.househelper.connection.ConnectionManager;
 import com.househelper.service.IUploadRequest;
 import com.househelper.service.Request;
@@ -20,6 +21,7 @@ public class HouseHelperApplication extends Application {
 	LocalContext context;
 	int count = 0;
 	ConnectionManager con = new ConnectionManager(this);
+	DbxAccountManager mDropBoxObj = null;
 	
 	@SuppressLint("NewApi")
 	ActivityLifecycleCallbacks cb = new ActivityLifecycleCallbacks() {
@@ -108,6 +110,13 @@ public class HouseHelperApplication extends Application {
 		return true;
 		
 	}
-	
+
+	public void setDropBoxManager(DbxAccountManager mDbxAcctMgr) {
+		// TODO Auto-generated method stub
+		mDropBoxObj = mDbxAcctMgr;
+	}
+	public DbxAccountManager getDropBoxObject() {
+		return mDropBoxObj;
+	}
 	 
 }

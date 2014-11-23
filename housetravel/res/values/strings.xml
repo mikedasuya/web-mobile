@@ -3,5 +3,7 @@
     <string name="app_name">HouseHelper</string>
     <string name="service_name">Service</string>
     <string name="sample_file_mimetype">image/png</string>
+    <string name = "app_key">n69fn15k4omr4hp</string>
+    <string name = "app_secret">jqsyjxmr6zjk3sy</string>
 
 </resources>

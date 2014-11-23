@@ -45,11 +45,7 @@ public class ConnectionManager {
 	
 	class DummyRequest implements Request {
 
-		@Override
-		public int getType() {
-			// TODO Auto-generated method stub
-			return 0;
-		}
+		
 
 		@Override
 		public void run() {
@@ -57,11 +53,7 @@ public class ConnectionManager {
 			
 		}
 
-		@Override
-		public String getUrl() {
-			// TODO Auto-generated method stub
-			return null;
-		}
+		
 
 		@Override
 		public String getFolderName() {
@@ -75,12 +67,7 @@ public class ConnectionManager {
 			return null;
 		}
 
-		@Override
-		public ICallBack getCallBack() {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
+		
 		@Override
 		public void setCallBackHandler(Handler mhandler) {
 			// TODO Auto-generated method stub
@@ -121,18 +108,14 @@ public class ConnectionManager {
 				if (obj != null) {
 					if (mUploadInterface != null) {
 					
-							mUploadInterface.uploadFilePath(obj.getUrl(), obj.getFolderName(),
-									obj.getFileName(), obj.getCallBack());
-					
+											
 					} else {
 						Thread.sleep(WAIT_TIME);
 						queue.add(obj);
 					}
 				}
-			} catch (RemoteException e) {
-				// TODO Auto-generated catch block
-					e.printStackTrace();
-			} catch (InterruptedException e) {
+							// TODO Auto-generated catch block
+								} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}

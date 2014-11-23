@@ -5,6 +5,9 @@ import java.util.Random;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 
+import com.dropbox.sync.android.DbxAccountManager;
+import com.dropbox.sync.android.DbxFileSystem;
+import com.househelper.application.HouseHelperApplication;
 import com.househelper.common.HouseConstants;
 import com.househelper.service.data.NotificationObject;
 
@@ -30,6 +33,8 @@ public class UploadService extends Service {
   private  BlockingQueue queue = new ArrayBlockingQueue(1024);
   NotificationHandler notificationManager = new NotificationHandler(this);
   Thread listenerThread = null;
+  HouseHelperApplication mAppObj = null;
+  DbxAccountManager mDropBoxObj = null;
   
   Handler mHandler = new Handler() {
 	  public void 	handleMessage(Message msg) {
@@ -83,6 +88,7 @@ public class UploadService extends Service {
   @Override
   public int onStartCommand(Intent intent, int flags, int startId) {
     //TODO do something useful
+	  mAppObj = (HouseHelperApplication) this.getApplication();
     return Service.START_NOT_STICKY;
   }
 
@@ -179,11 +185,13 @@ private final IUploadRequest.Stub mBinder = new IUploadRequest.Stub() {
 		} else {
 			if (checkDataConnection()) {
 				Id = randInt(0, 100); 
-				Request req = new FileUploadRequest(url,
+				if (mAppObj != null) {
+					mDropBoxObj = mAppObj.getDropBoxObject();
+				}
+				Request req = new FileUploadRequest(mDropBoxObj,
 														cb,
 														folderName, 
 														file,
-														getApplicationContext(),
 														Id
 														);
 			//check for duplicate entry

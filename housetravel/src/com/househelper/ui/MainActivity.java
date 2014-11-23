@@ -1,6 +1,7 @@
 
 package com.househelper.ui;
 
+import com.dropbox.sync.android.DbxAccountManager;
 import com.househelper.interfaces.ClickListenerInterface;
 import com.househelper.profile.ProfileFragment;
 
@@ -9,6 +10,7 @@ import android.app.Fragment;
 import android.app.FragmentTransaction;
 import android.os.Bundle;
 import android.app.Activity;
+import android.content.res.Resources;
  
 public class MainActivity extends Activity implements ClickListenerInterface {
     // Declare Tab Variable
@@ -16,11 +18,19 @@ public class MainActivity extends Activity implements ClickListenerInterface {
     Fragment fragmentsnapshot = new SnapshotFragment();
     Fragment fragmentHistory = new HistoryFragment();
    // Fragment fragmentTab3 = new FragmentTab3();
+    private DbxAccountManager mDbxAcctMgr;
  
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setTabs();
+        Resources res = this.getResources();
+		String appKey = String.format(res.getString(R.string.app_key));
+		String appSecret = String.format(res.getString(R.string.app_secret));
+		mDbxAcctMgr = DbxAccountManager.getInstance(this, appKey, appSecret);
+		if (!mDbxAcctMgr.hasLinkedAccount()) {
+			mDbxAcctMgr.startLink(this, 0);
+		}
         //actionBar.addTab(Tab3);
     }
     

@@ -1,6 +1,11 @@
 package com.househelper.service;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStreamReader;
 
 import android.content.Context;
 import android.net.Uri;
@@ -18,12 +23,14 @@ import com.owncloud.android.lib.resources.files.FileUtils;
 import com.owncloud.android.lib.resources.files.UploadRemoteFileOperation;
 
 import com.dropbox.sync.android.*;
+import com.dropbox.sync.android.DbxException.Unauthorized;
+import com.dropbox.sync.android.DbxPath.InvalidPathException;
 
 
 public class FileUploadRequest implements Request {
 	
 	ICallBack mCallBackCaller;
-	String mFileName = null;
+	Uri mFileName = null;
 	String mFolderName;
 	int id;
 	
@@ -42,7 +49,7 @@ public class FileUploadRequest implements Request {
 	FileUploadRequest(DbxAccountManager dropbox, 
 			ICallBack cb,
 			String folder, 
-			String fName, long requestId) {
+			Uri fName, long requestId) {
 		
 		mCallBackCaller = cb;
 		mFileName = fName;
@@ -55,21 +62,50 @@ public class FileUploadRequest implements Request {
 	@Override
 	public void run() {
 		
-		addToDropBox();
-		// TODO Auto-generated method stub
-		/*File upFolder = new File(mFolderName);
-    	File fileToUpload = new File(upFolder + mFolderName + "/" + mFileName); 
-    	String remotePath = FileUtils.PATH_SEPARATOR + mFolderName + fileToUpload.getName(); 
-    	String mimeType = context.getString(R.string.sample_file_mimetype);
-    	UploadRemoteFileOperation uploadOperation = new UploadRemoteFileOperation(fileToUpload.getAbsolutePath(), remotePath, mimeType);
-    	uploadOperation.addDatatransferProgressListener(mfileUploadCallBack);
-    	uploadOperation.execute(mClient, mfileUploadCallBack, mHandler);*/
+		try {
+			addToDropBox(mFileName, mFolderName);
+		} catch (InvalidPathException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
 	}
 
 
-	private void addToDropBox() {
+	private void addToDropBox(Uri fileName, String folderName) throws InvalidPathException, IOException {
 		// TODO Auto-generated method stub
-		
+		DbxFile testFile = null;
+		BufferedReader in = null;
+		try {
+			
+			DbxFileSystem dbxFs = DbxFileSystem.forAccount(mDbxAcctMgr.getLinkedAccount());
+			File inputFile = new File(fileName.toString());
+			
+			FileInputStream fis = new FileInputStream(inputFile);
+			in = new BufferedReader(new InputStreamReader(fis));
+	 
+			/*FileWriter fstream = new FileWriter(dest, true);
+			BufferedWriter out = new BufferedWriter(fstream);
+	 */
+			testFile= dbxFs.create(new DbxPath(fileName.toString()));
+			String aLine = null;
+			while ((aLine = in.readLine()) != null) {
+				//Process each line and add output to Dest.txt file
+				//testFile.writeFromExistingFile(file, shouldSteal)
+				testFile.writeString(aLine);
+			}
+			
+			
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} finally {
+			testFile.close();
+			in.close();
+		}
 	}
 	
 	
@@ -84,7 +120,7 @@ public class FileUploadRequest implements Request {
 
 
 	@Override
-	public String getFileName() {
+	public Uri getFileName() {
 		// TODO Auto-generated method stub
 		return mFileName;
 	}

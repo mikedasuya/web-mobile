@@ -12,6 +12,7 @@ import com.househelper.contentprovider.Auth;
 import com.househelper.contentprovier.test.testDb;
 import com.househelper.getLocation.LocationTracker;
 import com.househelper.service.ICallBack;
+import com.househelper.service.Request;
 import com.househelper.service.UploadService;
 import com.househelper.ui.R;
 
@@ -26,6 +27,7 @@ import android.content.ServiceConnection;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Handler;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.provider.MediaStore;
@@ -44,7 +46,7 @@ public class ProfileFragment extends Fragment {
 	Button buttonSave = null;
 	Button addPic = null;
 	Button addVideo = null;
-	Context context = null;
+	Context mContext = null;
 	public static final Uri LC_CONTENT_URI = 
 	         Uri.withAppendedPath(
 	               Auth.CONTENT_URI,
@@ -71,10 +73,11 @@ public class ProfileFragment extends Fragment {
 	@Override
 	public void onAttach(Activity activity) {
 	    super.onAttach(activity);
-	    context = activity;
+	    mContext = activity;
 	    app = (HouseHelperApplication) getActivity().getApplication();
 	    lcontext = app.getLocalContext();
-	    tracker = new LocationTracker(context);
+	    tracker = new LocationTracker(mContext);
+	    folderName = getNewFolderName(0);
 	}
 	@Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -82,7 +85,7 @@ public class ProfileFragment extends Fragment {
         View rootView = inflater.inflate(R.layout.profile, container, false);
         buttonSave = (Button) rootView.findViewById(R.id.save);
         buttonSave.setOnClickListener(buttonListener);
-        agentNameView = (EditText) rootView.findViewById(R.id.agentname);
+        agentNameView = (EditText) rootView.findViewById(R.id.textAgentName);
         houseArea = (EditText) rootView.findViewById(R.id.harea);
         houseprice = (EditText) rootView.findViewById(R.id.price);
         notes = (EditText) rootView.findViewById(R.id.Notes);
@@ -186,14 +189,14 @@ public class ProfileFragment extends Fragment {
 			newValues.put(Auth.ItemsColumn.COL_PRICE, price);
 			newValues.put(Auth.ItemsColumn.COL_SYNCED, HouseConstants.NOT_SYNC);
 			newValues.put(Auth.ItemsColumn.COL_USERNAME, HouseConstants.TEMP_USERNAME);
-			folderName = getNewFolderName(0);
+			
 			newValues.put(Auth.ItemsColumn.COL_FOLDERNAME, folderName);
 			newValues.put(Auth.ItemsColumn.COL_LAT, tracker.getLatitude());
 			newValues.put(Auth.ItemsColumn.COL_LAT, tracker.getLongitude());
 			
 			setContext();
 			try {
-					context.getContentResolver().insert(
+					mContext.getContentResolver().insert(
 							LC_CONTENT_URI,   // the user dictionary content URI
 							newValues);
 			} catch (Exception e) {
@@ -201,7 +204,7 @@ public class ProfileFragment extends Fragment {
 			}
 			addPic.setClickable(true);
 	        addVideo.setClickable(true);
-			sendSyncRequest();
+			//sendSyncRequest();
 			
 		}
 
@@ -272,6 +275,9 @@ public class ProfileFragment extends Fragment {
 	private void sendSyncRequest() {
 		// TODO Auto-generated method stub
 		//  int uploadFilePath(in String url, in String folderName, in String file, in ICallBack cb );
+		HouseHelperApplication app = (HouseHelperApplication)getActivity().getApplication();
+		RequestObj obj = new RequestObj(finalMediaUri, folderName);
+		app.addRequest(obj);
 	}
 	
 	private class CallBack implements ICallBack {
@@ -292,6 +298,40 @@ public class ProfileFragment extends Fragment {
 		
 	}
 	
+	public class RequestObj implements Request {
+		Uri mFileName;
+		String mFolderName;
+				
+		RequestObj(Uri mFileName1, String mFolderName1) {
+			mFileName = mFileName1;
+			mFolderName = mFolderName1;
+			
+		}
+		@Override
+		public void run() {
+			// TODO Auto-generated method stub
+			
+		}
+
+		@Override
+		public String getFolderName() {
+			// TODO Auto-generated method stub
+			return mFolderName;
+		}
+
+		@Override
+		public Uri getFileName() {
+			// TODO Auto-generated method stub
+			return mFileName;
+		}
+
+		@Override
+		public void setCallBackHandler(Handler mhandler) {
+			// TODO Auto-generated method stub
+			
+		}
+		
+	}
 	
 	
 	

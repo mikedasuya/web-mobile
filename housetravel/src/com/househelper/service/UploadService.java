@@ -16,6 +16,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
@@ -31,7 +32,7 @@ public class UploadService extends Service {
   HashMap<Long, Request> mapRequestId = new HashMap<Long, Request>();
   NotificationHandler mNotifyHandler = null;
   private  BlockingQueue queue = new ArrayBlockingQueue(1024);
-  NotificationHandler notificationManager = new NotificationHandler(this);
+  NotificationHandler notificationManager = null;
   Thread listenerThread = null;
   HouseHelperApplication mAppObj = null;
   DbxAccountManager mDropBoxObj = null;
@@ -175,28 +176,22 @@ private final IUploadRequest.Stub mBinder = new IUploadRequest.Stub() {
     
     
 	@Override
-	public int uploadFilePath(String url, String folderName, String file, ICallBack cb)
+	public int uploadFilePath(String fileName, String folderName, ICallBack cb)
 			throws RemoteException {
 		// TODO Auto-generated method stub
 		int result = 0;
 		long Id = 0;
-		if (url == null || folderName == null || file == null || cb == null) {
-			result = -1 ;
-		} else {
-			if (checkDataConnection()) {
-				Id = randInt(0, 100); 
-				if (mAppObj != null) {
-					mDropBoxObj = mAppObj.getDropBoxObject();
-				}
+		Uri  url = Uri.parse(fileName);
+		if (url == null || folderName == null) { 
 				Request req = new FileUploadRequest(mDropBoxObj,
 														cb,
 														folderName, 
-														file,
+														url,
 														Id
 														);
 			//check for duplicate entry
 				mapRequestId.put(Id, req);
-				sendStartUploadFileMessage(Id);
+			//	sendStartUploadFileMessage(Id);
 			
 				try {
 					queue.put(req);
@@ -212,7 +207,7 @@ private final IUploadRequest.Stub mBinder = new IUploadRequest.Stub() {
 				sendDataConnectivityErrorNotification(Id);
 			
 			}
-		}  // if some thing is null
+		  // if some thing is null
 		return result;
 	}
 	

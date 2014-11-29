@@ -105,7 +105,7 @@ public class HouseHelperApplication extends Application {
 	 * @return
 	 */
 	
-	boolean addRequest(Request obj) {
+	public boolean addRequest(Request obj) {
 		con.addRequest(obj);
 		return true;
 		

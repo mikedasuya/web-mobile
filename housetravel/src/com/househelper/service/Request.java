@@ -1,11 +1,12 @@
 package com.househelper.service;
 
+import android.net.Uri;
 import android.os.Handler;
 
 public interface Request extends Runnable {
 	abstract void run();
 	abstract String getFolderName();
-	abstract String getFileName();
+	abstract Uri getFileName();
 	abstract void setCallBackHandler(Handler mhandler);
 	
 }

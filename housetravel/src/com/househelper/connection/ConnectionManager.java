@@ -12,6 +12,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.net.Uri;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.RemoteException;
@@ -62,7 +63,7 @@ public class ConnectionManager {
 		}
 
 		@Override
-		public String getFileName() {
+		public Uri getFileName() {
 			// TODO Auto-generated method stub
 			return null;
 		}
@@ -107,7 +108,15 @@ public class ConnectionManager {
 			try {
 				if (obj != null) {
 					if (mUploadInterface != null) {
-					
+						Uri uri = obj.getFileName();
+						try {
+							if (uri != null && obj != null) {
+								mUploadInterface.uploadFilePath(uri.toString(), obj.getFolderName(), null);
+							}
+						} catch (RemoteException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
 											
 					} else {
 						Thread.sleep(WAIT_TIME);

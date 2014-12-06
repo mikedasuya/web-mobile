@@ -4,7 +4,6 @@ package com.househelper.ui;
 import com.dropbox.sync.android.DbxAccountManager;
 import com.househelper.application.HouseHelperApplication;
 import com.househelper.interfaces.ClickListenerInterface;
-import com.househelper.profile.ProfileFragment;
 
 
 import android.app.ActionBar;

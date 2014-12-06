@@ -74,17 +74,11 @@ public class SnapshotFragment extends Fragment {
 	        mMap = mapView.getMap();
 	        if (mMap == null) {
 	        	Log.d(TAG, " google mpa null ------------------------------------");
+	        } else {
+	        	mMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
+	        	mMap.getUiSettings().setMyLocationButtonEnabled(true);
 	        }
-	        mMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
-	        mMap.getUiSettings().setMyLocationButtonEnabled(true);
-	        Location loc = mLocationTracker.getLocation();
-	        mMap.setMyLocationEnabled(true);
-	        mMap.addMarker(new MarkerOptions()
-	        .position(new LatLng(loc.getLatitude(), loc.getLongitude())));
-	        MapsInitializer.initialize(this.getActivity());
-	        // Updates the location and zoom of the MapView
-	        CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(new LatLng(loc.getLatitude(), loc.getLongitude()), 10);
-	        mMap.animateCamera(cameraUpdate);
+	       
 	        profileButton = (Button) v.findViewById(R.id.bsnapshot);
 	    	profileButton.setOnClickListener(buttonListener);
 	        return v;
@@ -96,6 +90,19 @@ public class SnapshotFragment extends Fragment {
 		 	mCallBack.onClick(v.getId());
 		 }
 	};
+	
+	void setmarker() {
+		 Location loc = mLocationTracker.getLocation();
+		 if (loc != null) {
+			 mMap.setMyLocationEnabled(true);
+			 mMap.addMarker(new MarkerOptions()
+			 .position(new LatLng(loc.getLatitude(), loc.getLongitude())));
+			 MapsInitializer.initialize(this.getActivity());
+	        // Updates the location and zoom of the MapView
+			 CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(new LatLng(loc.getLatitude(), loc.getLongitude()), 10);
+			 mMap.animateCamera(cameraUpdate);
+		 }
+	}
 	
 	@Override
 	public void onSaveInstanceState(Bundle outState) {

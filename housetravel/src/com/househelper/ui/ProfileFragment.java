@@ -1,4 +1,4 @@
-package com.househelper.profile;
+package com.househelper.ui;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
@@ -14,6 +14,7 @@ import com.househelper.getLocation.LocationTracker;
 import com.househelper.service.ICallBack;
 import com.househelper.service.Request;
 import com.househelper.service.UploadService;
+import com.househelper.service.data.ProfileData;
 import com.househelper.ui.R;
 
 import android.app.Activity;
@@ -93,9 +94,7 @@ public class ProfileFragment extends Fragment {
         addPic.setOnClickListener(buttonListener);
         addVideo = (Button) rootView.findViewById(R.id.AddVideo);
         addVideo.setOnClickListener(buttonListener);
-        addPic.setClickable(false);
-        addVideo.setClickable(false);
-       
+        ProfileData pf = new ProfileData();  
         return rootView;
 	}
     
@@ -166,10 +165,10 @@ public class ProfileFragment extends Fragment {
 	        File mediaFile;
 	        if (type == MEDIA_TYPE_IMAGE) {
 	            mediaFile = new File(mediaStorageDir.getPath() + File.separator
-	                    + folderName+"/"+"IMG_" + timeStamp + ".jpg");
+	                    +"/"+"IMG_" + timeStamp + ".jpg");
 	        } else if (type == MEDIA_TYPE_VIDEO) {
 	            mediaFile = new File(mediaStorageDir.getPath() + File.separator
-	                    +folderName+ "/"+ "VID_" + timeStamp + ".mp4");
+	                    +"/"+ "VID_" + timeStamp + ".mp4");
 	        } else {
 	            return null;
 	        }
@@ -225,8 +224,18 @@ public class ProfileFragment extends Fragment {
 			// TODO Auto-generated method stub
 		
 			agentName = agentNameView.getText().toString();
-			houArea = Integer.parseInt(houseArea.getText().toString());
-			price = Integer.parseInt(houseprice.getText().toString());
+			String ara = houseArea.getText().toString();
+			if (ara != null && ara.length() > 0) {
+				houArea = Integer.parseInt(ara);
+			} else {
+				houArea = 0;
+			}
+			String pr = houseprice.getText().toString();
+			if (pr != null && pr.length() > 0) {
+				price = Integer.parseInt(pr);
+			} else {
+				price = 0;
+			}
 			hnotes = notes.getText().toString();
 			if (agentName == null || agentName.length() == 0) {
 				agentName = new String("temp");
@@ -302,8 +311,8 @@ public class ProfileFragment extends Fragment {
 		Uri mFileName;
 		String mFolderName;
 				
-		RequestObj(Uri mFileName1, String mFolderName1) {
-			mFileName = mFileName1;
+		RequestObj(Uri finalMediaUri, String mFolderName1) {
+			mFileName = finalMediaUri;
 			mFolderName = mFolderName1;
 			
 		}
@@ -320,9 +329,9 @@ public class ProfileFragment extends Fragment {
 		}
 
 		@Override
-		public Uri getFileName() {
+		public String getFileName() {
 			// TODO Auto-generated method stub
-			return mFileName;
+			return mFileName.toString();
 		}
 
 		@Override

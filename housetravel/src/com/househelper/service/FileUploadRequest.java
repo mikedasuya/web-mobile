@@ -12,6 +12,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.util.Log;
 import android.widget.TextView;
 
 import com.househelper.common.HouseConstants;
@@ -29,27 +30,22 @@ import com.dropbox.sync.android.DbxPath.InvalidPathException;
 
 public class FileUploadRequest implements Request {
 	
+	private static final String TAG = "FileUploadRequest";
 	ICallBack mCallBackCaller;
-	Uri mFileName = null;
+	String mFileName = null;
 	String mFolderName;
 	int id;
-	
+	Handler mResultCallBackHandler = null;
 		
 	//private DropboxAPI<AndroidAuthSession> mDBApi;
 	private DbxAccountManager mDbxAcctMgr;
 	
 	
 	
-	Handler mResultCallBackHandler = new Handler() {
-		  public void 	handleMessage(Message msg) {
-			  
-		  }
-    };
-	
 	FileUploadRequest(DbxAccountManager dropbox, 
 			ICallBack cb,
 			String folder, 
-			Uri fName, long requestId) {
+			String fName, long requestId) {
 		
 		mCallBackCaller = cb;
 		mFileName = fName;
@@ -75,8 +71,10 @@ public class FileUploadRequest implements Request {
 	}
 
 
-	private void addToDropBox(Uri fileName, String folderName) throws InvalidPathException, IOException {
+	private void addToDropBox(String fileName, String folderName) throws InvalidPathException, IOException {
 		// TODO Auto-generated method stub
+		
+		Log.d (TAG, "---------------file name + folder name" + fileName + folderName);
 		DbxFile testFile = null;
 		BufferedReader in = null;
 		try {
@@ -120,7 +118,7 @@ public class FileUploadRequest implements Request {
 
 
 	@Override
-	public Uri getFileName() {
+	public String getFileName() {
 		// TODO Auto-generated method stub
 		return mFileName;
 	}

@@ -63,7 +63,7 @@ public class ConnectionManager {
 		}
 
 		@Override
-		public Uri getFileName() {
+		public String getFileName() {
 			// TODO Auto-generated method stub
 			return null;
 		}
@@ -108,10 +108,10 @@ public class ConnectionManager {
 			try {
 				if (obj != null) {
 					if (mUploadInterface != null) {
-						Uri uri = obj.getFileName();
+						String filePath = obj.getFileName();
 						try {
-							if (uri != null && obj != null) {
-								mUploadInterface.uploadFilePath(uri.toString(), obj.getFolderName(), null);
+							if (filePath != null && obj != null) {
+								mUploadInterface.uploadFilePath(filePath, obj.getFolderName(), null);
 							}
 						} catch (RemoteException e) {
 							// TODO Auto-generated catch block

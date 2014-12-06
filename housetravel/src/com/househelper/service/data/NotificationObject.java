@@ -2,19 +2,19 @@ package com.househelper.service.data;
 
 public class NotificationObject {
 	
-	int mId;
+	Long mId;
 	String mFileName;
 	int mProgress;
 	int mOperation;
 	int mRequestId;
 
 	
-	public int getId() {
+	public Long getId() {
 		// TODO Auto-generated method stub
 		return mId;
 	}
 	
-	public void setId(int id) {
+	public void setId(Long id) {
 		mId = id;
 	}
 

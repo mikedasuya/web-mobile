@@ -22,6 +22,7 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
 import android.os.RemoteException;
+import android.util.Log;
 
 public class UploadService extends Service {
 
@@ -29,7 +30,8 @@ public class UploadService extends Service {
 //In both
 	
   
-  HashMap<Long, Request> mapRequestId = new HashMap<Long, Request>();
+  protected static final String TAG = "UploadService";
+HashMap<Long, Request> mapRequestId = new HashMap<Long, Request>();
   NotificationHandler mNotifyHandler = null;
   private  BlockingQueue queue = new ArrayBlockingQueue(1024);
   NotificationHandler notificationManager = null;
@@ -42,14 +44,14 @@ public class UploadService extends Service {
 		  if (msg.arg1 == HouseConstants.OPERATION_FILE_UPLOAD_SUCCESS ) {
 			  Bundle data = msg.getData();
 			  NotificationObject obj = new NotificationObject();
-			  obj.setId((Integer) data.get(HouseConstants.REQUEST_ID_STRIND));
+			  obj.setId((Long)data.get(HouseConstants.REQUEST_ID_STRIND));
 			  obj.setOperation(HouseConstants.OPERATION_FILE_UPLOAD_SUCCESS);
 			  notificationManager.handleObject(obj);
 			 			 
 		  } else if (msg.arg1 == HouseConstants.OPERATION_FILE_UPLOAD_INPROGRESS) {
 			  Bundle data = msg.getData();
 			  NotificationObject obj = new NotificationObject();
-			  obj.setId((Integer) data.get(HouseConstants.REQUEST_ID_STRIND));
+			  obj.setId((Long) data.get(HouseConstants.REQUEST_ID_STRIND));
 			  obj.setOperation(HouseConstants.OPERATION_FILE_UPLOAD_SUCCESS);
 			  obj.setProgress(msg.arg2);
 			  notificationManager.handleObject(obj);
@@ -57,14 +59,14 @@ public class UploadService extends Service {
 		  } else if (msg.arg1 == HouseConstants.OPERATION_FILE_UPLOAD_FAILURE) {
 			  Bundle data = msg.getData();
 			  NotificationObject obj = new NotificationObject();
-			  obj.setId((Integer) data.get(HouseConstants.REQUEST_ID_STRIND));
+			  obj.setId((Long) data.get(HouseConstants.REQUEST_ID_STRIND));
 			  obj.setOperation(HouseConstants.OPERATION_FILE_UPLOAD_SUCCESS);
 			  notificationManager.handleObject(obj);
 			  			  
 		  } else if (msg.arg1 == HouseConstants.OPERATION_FILE_UPLOAD_START) {
 			  Bundle data = msg.getData();
 			  NotificationObject obj = new NotificationObject();
-			  obj.setId((Integer) data.get(HouseConstants.REQUEST_ID_STRIND));
+			  obj.setId((Long) data.get(HouseConstants.REQUEST_ID_STRIND));
 			  obj.setOperation(HouseConstants.OPERATION_FILE_UPLOAD_SUCCESS);
 			  notificationManager.handleObject(obj);
 			  
@@ -72,7 +74,8 @@ public class UploadService extends Service {
 		  } else if (msg.arg1 == HouseConstants.OPERATION_FILE_UPLOAD_DATA_CONNECTIVITY_ERROR) {
 			  Bundle data = msg.getData();
 			  NotificationObject obj = new NotificationObject();
-			  obj.setId((Integer) data.get(HouseConstants.REQUEST_ID_STRIND));
+			  Long id =  (Long) data.get(HouseConstants.REQUEST_ID_STRIND);
+			  obj.setId(id);
 			  obj.setOperation(HouseConstants.OPERATION_FILE_UPLOAD_DATA_CONNECTIVITY_ERROR);
 			  notificationManager.handleObject(obj);
 			  
@@ -90,6 +93,7 @@ public class UploadService extends Service {
   public int onStartCommand(Intent intent, int flags, int startId) {
     //TODO do something useful
 	  mAppObj = (HouseHelperApplication) this.getApplication();
+	  
     return Service.START_NOT_STICKY;
   }
 
@@ -179,14 +183,16 @@ private final IUploadRequest.Stub mBinder = new IUploadRequest.Stub() {
 	public int uploadFilePath(String fileName, String folderName, ICallBack cb)
 			throws RemoteException {
 		// TODO Auto-generated method stub
+		if (notificationManager == null) {
+			notificationManager = new NotificationHandler(getApplicationContext());
+		}
+		Log.d(TAG, "--servce---filename + foldername ---" + fileName + folderName);
 		int result = 0;
 		long Id = 0;
-		Uri  url = Uri.parse(fileName);
-		if (url == null || folderName == null) { 
-				Request req = new FileUploadRequest(mDropBoxObj,
+		Request req = new FileUploadRequest(mDropBoxObj,
 														cb,
-														folderName, 
-														url,
+														folderName,
+														fileName,
 														Id
 														);
 			//check for duplicate entry
@@ -201,12 +207,12 @@ private final IUploadRequest.Stub mBinder = new IUploadRequest.Stub() {
 					e.printStackTrace();
 					result = HouseConstants.OPERATION_FILE_UPLOAD_INTERNAL_ERROR;
 				}
-			}  else {
+			/*}  else {
 			//check data connection
 				result = HouseConstants.OPERATION_FILE_UPLOAD_DATA_CONNECTIVITY_ERROR;
 				sendDataConnectivityErrorNotification(Id);
 			
-			}
+			}*/
 		  // if some thing is null
 		return result;
 	}

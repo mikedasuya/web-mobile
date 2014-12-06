@@ -6,7 +6,7 @@ import android.os.Handler;
 public interface Request extends Runnable {
 	abstract void run();
 	abstract String getFolderName();
-	abstract Uri getFileName();
+	abstract String getFileName();
 	abstract void setCallBackHandler(Handler mhandler);
 	
 }
